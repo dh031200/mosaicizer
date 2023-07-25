@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<div id="imageDisplay">
+    <img id="uploadedImage">
+    <canvas id="result"></canvas>
+</div>
+<div id="loadingOverlay">
+    <p>Processing...</p>
+</div>
+<div id="toolbar">
+    <input type="file" id="hiddenFileInput" style="display: none;">
+    <button id="imageUpload">Upload</button>
+    <label for="pixelSizeInput"></label><input type="number" id="pixelSizeInput" min="1" value="10">
+    <label for="blurRadio"></label><input type="radio" id="blurRadio" name="filter" value="blur" checked> Blur<br>
+    <label for="mosaicRadio"></label><input type="radio" id="mosaicRadio" name="filter" value="mosaic"> Mosaic<br>
+    <button id="inferBtn" disabled>Infer</button>
+    <button id="resetBtn" disabled>Reset</button>
+    <button id="saveBtn" disabled>Save</button>
+</div>
+<script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
