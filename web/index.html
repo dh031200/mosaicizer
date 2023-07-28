@@ -4,19 +4,38 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-<div id="imageDisplay">
-    <img id="uploadedImage">
-    <canvas id="result"></canvas>
+
+<img id="uploadedImage" src="" alt="Uploaded Image">
+<canvas id="output"></canvas>
+<div id="imageContainer">
+    <canvas id="preview" usem></canvas>
+    <img id="result" src=""  alt="result image" usemap="#clickMap"></img>
+    <map name="clickMap" id="clickMap"></map>
 </div>
+
 <div id="loadingOverlay">
     <p>Processing...</p>
 </div>
 <div id="toolbar">
     <input type="file" id="hiddenFileInput" style="display: none;">
     <button id="imageUpload">Upload</button>
-    <label for="pixelSizeInput"></label><input type="number" id="pixelSizeInput" min="1" value="10">
-    <label for="blurRadio"></label><input type="radio" id="blurRadio" name="filter" value="blur" checked> Blur<br>
-    <label for="mosaicRadio"></label><input type="radio" id="mosaicRadio" name="filter" value="mosaic"> Mosaic<br>
+    <div id="pixelSizeContainer">
+        <div id="pixelSizeLabel">PixelSize</div>
+        <label for="pixelSizeInput"></label><input type="number" id="pixelSizeInput" min="1" max="100" value="10">
+    </div>
+    <div id="methodContainer">
+        <div id="methodLabel">Method</div>
+        <fieldset id="radioGroup">
+            <div class="radioOption">
+                <input type="radio" id="blurRadio" name="filter" value="blur" checked>
+                <label for="blurRadio">Blur</label>
+            </div>
+            <div class="radioOption">
+                <input type="radio" id="mosaicRadio" name="filter" value="mosaic">
+                <label for="mosaicRadio">Mosaic</label>
+            </div>
+        </fieldset>
+    </div>
     <button id="inferBtn" disabled>Infer</button>
     <button id="resetBtn" disabled>Reset</button>
     <button id="saveBtn" disabled>Save</button>

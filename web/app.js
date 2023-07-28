@@ -1,6 +1,9 @@
 let inference_session;
 let nms_session;
 let config;
+let originalImageWidth
+let originalImageHeight
+let scaleX, scaleY;
 const boxes = []; // Define the 'boxes' variable in a higher scope
 
 async function onOpenCvReady() {
@@ -43,23 +46,51 @@ window.onload = async function () {
         reader.onload = function (event) {
             const img = new Image();
             img.onload = function () {
-                document.getElementById('uploadedImage').src = event.target.result;
+                originalImageWidth = this.naturalWidth;   // Store the original image width
+                originalImageHeight = this.naturalHeight; // Store the original image height
+
+                const src = document.getElementById('uploadedImage')
+                const dst = document.getElementById('preview')
+                src.src = event.target.result;
+
                 // Enable the infer and reset buttons when an image is uploaded
                 inferBtn.disabled = false;
                 resetBtn.disabled = false;
+
+                // Show the uploaded image
+                const mat = cv.imread(src);
+                const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3); // new image matrix
+                cv.cvtColor(mat, image, cv.COLOR_RGBA2RGB); // RGBA to BGR
+                cv.imshow('preview', image)
+                dst.style.display = 'block';
             }
             img.src = event.target.result;
         }
         reader.readAsDataURL(e.target.files[0]);
-
     }, false);
+
 
     inferBtn.addEventListener('click', async function () {
         const src = document.getElementById('uploadedImage')
+        // const preview = document.getElementById('preview')
+        const dst = document.getElementById('result')
+        const output = document.getElementById('output')
+
+        document.getElementById('clickMap').remove()
+        const mapElement = document.createElement('map');
+        mapElement.name = 'clickMap'
+        mapElement.id = 'clickMap'
+        document.getElementById('imageContainer').appendChild(mapElement);
+
+
         // Show the loading overlay
         document.getElementById('loadingOverlay').style.display = 'block';
-        console.log('Loading overlay should be visible now');
-        // inferBtn.disabled = true;
+
+        // dst.src = '';
+        // dst.style.display = 'none';
+        // const resultCanvas = document.getElementById('output');
+        // const rCtx = resultCanvas.getContext('2d');
+        // rCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
 
         if (inference_session) {
             setTimeout(async function () {
@@ -73,6 +104,17 @@ window.onload = async function () {
                     const {output0} = await inference_session.run({images: tensor});
                     const {selected} = await nms_session.run({detection: output0, config: config});
 
+
+                    // // Calculate the scale factors
+                    const previewImage = document.getElementById('preview');
+                    if (previewImage.style.display === 'none') {
+                        scaleX = dst.clientWidth / originalImageWidth;
+                        scaleY = dst.clientHeight / originalImageHeight;
+                    } else {
+                        scaleX = previewImage.clientWidth / originalImageWidth;
+                        scaleY = previewImage.clientHeight / originalImageHeight;
+                    }
+
                     // looping through output
                     for (let idx = 0; idx < selected.dims[1]; idx++) {
                         const data = selected.data.slice(idx * selected.dims[2], (idx + 1) * selected.dims[2]); // get rows
@@ -81,7 +123,7 @@ window.onload = async function () {
                         const score = Math.max(...scores); // maximum probability scores
                         const label = scores.indexOf(score); // class id of maximum probability scores
 
-                        const [x, y, w, h] = [
+                        let [x, y, w, h] = [
                             (box[0] - 0.5 * box[2]) * xRatio, // upscale left
                             (box[1] - 0.5 * box[3]) * yRatio, // upscale top
                             box[2] * xRatio, // upscale width
@@ -95,32 +137,27 @@ window.onload = async function () {
                         }); // update boxes to draw later
                     }
 
-                    console.log(boxes)
                     const mat = cv.imread(src); // read from img tag
                     const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3); // new image matrix
                     cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR); // RGBA to BGR
 
                     let originalImage = image.clone();
 
-                    for (let box of boxes) {
+
+                    while (boxes.length > 0) {
+                        const box = boxes.pop();
                         applyFilter(image, box);
-
-                        // Create a div element for the face
-                        let faceDiv = document.createElement('div');
-                        faceDiv.style.position = 'absolute';
-                        faceDiv.style.left = box.bounding[0] + 'px';
-                        faceDiv.style.top = box.bounding[1] + 'px';
-                        faceDiv.style.width = box.bounding[2] + 'px';
-                        faceDiv.style.height = box.bounding[3] + 'px';
-
-                        // Add the div to the image display
-                        document.getElementById('imageDisplay').appendChild(faceDiv);
 
                         // Define the bounding box coordinates
                         let x = box.bounding[0];
                         let y = box.bounding[1];
                         let w = box.bounding[2];
                         let h = box.bounding[3];
+
+                        // Create a area element for the face
+                        let faceArea = document.createElement('area');
+                        faceArea.shape = 'rect'
+                        faceArea.coords = `${x * scaleX},${y * scaleY},${x * scaleX + w * scaleX},${y * scaleY + h * scaleY}`
 
                         // Define the region of interest in the filtered image
                         let roi = image.roi(new cv.Rect(x, y, w, h));
@@ -130,7 +167,7 @@ window.onload = async function () {
                         let filteredRegion = roi.clone();
 
                         // Add an event listener to the face
-                        faceDiv.addEventListener('click', function() {
+                        faceArea.addEventListener('click', function () {
                             // Subtract the original region from the current region
                             let difference = new cv.Mat();
                             cv.subtract(roi, originalRegion, difference);
@@ -149,33 +186,33 @@ window.onload = async function () {
 
                             const rgbMat = new cv.Mat();
                             cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
-                            // Update the displayed image
-                            cv.imshow('result', rgbMat);
+                            cv.imshow('output', rgbMat);
+
+                            dst.src = output.toDataURL();
 
                             // Clean up
                             difference.delete();
                         });
+                        document.getElementById('clickMap').appendChild(faceArea);
+
                     }
-
-
-
-
 
                     const imgWithAlpha = new cv.Mat();
                     cv.cvtColor(image, imgWithAlpha, cv.COLOR_BGR2RGBA);
 
-                    // renderBoxes(canvas, boxes);
-                    cv.imshow('result', imgWithAlpha)
+                    cv.imshow('output', imgWithAlpha)
+                    dst.src = output.toDataURL();
+
+                    dst.style.display = 'block';
 
                     // Hide the loading overlay
                     document.getElementById('loadingOverlay').style.display = 'none';
-                    console.log('Loading overlay should be hidden now');
 
                     // Enable the save button when the inference is done
                     saveBtn.disabled = false;
 
                     // Hide the uploaded image
-                    document.getElementById('uploadedImage').style.display = 'none';
+                    document.getElementById('preview').style.display = 'none';
 
 
                     // Clean up
@@ -193,12 +230,24 @@ window.onload = async function () {
         // Clear the uploaded image
         document.getElementById('hiddenFileInput').value = '';
         document.getElementById('uploadedImage').src = '';
-        document.getElementById('uploadedImage').style.display = '';
+        document.getElementById('uploadedImage').style.display = 'none';
+        document.getElementById('result').src = '';
+        document.getElementById('result').style.display = 'none';
+
+        document.getElementById('clickMap').remove()
+        const mapElement = document.createElement('map');
+        mapElement.name = 'clickMap'
+        mapElement.id = 'clickMap'
+        document.getElementById('imageContainer').appendChild(mapElement);
 
         // Clear the result image
-        const resultCanvas = document.getElementById('result');
-        const ctx = resultCanvas.getContext('2d');
-        ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+        const resultCanvas = document.getElementById('output');
+        const previewCanvas = document.getElementById('preview');
+        const rCtx = resultCanvas.getContext('2d');
+        rCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+        const pCtx = previewCanvas.getContext('2d');
+        pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
 
         // Disable the infer, reset, and save buttons
         inferBtn.disabled = true;
@@ -207,7 +256,18 @@ window.onload = async function () {
     });
 
     saveBtn.addEventListener('click', function () {
-        const resultCanvas = document.getElementById('result');
+        const resultCanvas = document.getElementById('output');
+        const originalImage = document.getElementById('uploadedImage');
+        const originalImageWidth = originalImage.width
+        const originalImageHeight = originalImage.height
+        resultCanvas.width = originalImageWidth;     // Set the canvas width to the original image width
+        resultCanvas.height = originalImageHeight;
+        // Draw the image onto the canvas
+        const ctx = resultCanvas.getContext('2d');
+        const img = document.getElementById('result');
+        ctx.drawImage(img, 0, 0, originalImageWidth, originalImageHeight);
+
+        // Save the image
         const link = document.createElement('a');
         link.download = 'result.png';
         link.href = resultCanvas.toDataURL();
