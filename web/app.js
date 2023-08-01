@@ -32,7 +32,7 @@ async function onOpenCvReady() {
 
 window.onload = async function () {
   // Get references to the buttons
-  const inferBtn = document.getElementById("inferBtn");
+  const applyBtn = document.getElementById("applyBtn");
   const resetBtn = document.getElementById("resetBtn");
   const saveBtn = document.getElementById("saveBtn");
 
@@ -55,7 +55,7 @@ window.onload = async function () {
           src.src = event.target.result;
 
           // Enable the infer and reset buttons when an image is uploaded
-          inferBtn.disabled = false;
+          applyBtn.disabled = false;
           resetBtn.disabled = false;
 
           // Show the uploaded image
@@ -72,7 +72,7 @@ window.onload = async function () {
     false,
   );
 
-  inferBtn.addEventListener("click", async function () {
+  applyBtn.addEventListener("click", async function () {
     const src = document.getElementById("uploadedImage");
     // const preview = document.getElementById('preview')
     const dst = document.getElementById("result");
@@ -262,7 +262,7 @@ window.onload = async function () {
     pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
     // Disable the infer, reset, and save buttons
-    inferBtn.disabled = true;
+    applyBtn.disabled = true;
     resetBtn.disabled = true;
     saveBtn.disabled = true;
   });
