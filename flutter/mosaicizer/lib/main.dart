@@ -93,7 +93,6 @@ class MyHomePageState extends State<MyHomePage> {
       final File file = File(filePath);
       await file.writeAsBytes(bytes);
       final bool? result = await GallerySaver.saveImage(filePath, albumName: 'Download');
-      print('Image saved to gallery: $result');
       if (result == true) {
         Fluttertoast.showToast(msg: "Image saved successfully!");
       }

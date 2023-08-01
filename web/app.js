@@ -47,6 +47,7 @@ window.onload = async function () {
       reader.onload = function (event) {
         const img = new Image();
         img.onload = function () {
+          resetBtn.click();
           originalImageWidth = this.naturalWidth; // Store the original image width
           originalImageHeight = this.naturalHeight; // Store the original image height
 
@@ -74,7 +75,6 @@ window.onload = async function () {
 
   applyBtn.addEventListener("click", async function () {
     const src = document.getElementById("uploadedImage");
-    // const preview = document.getElementById('preview')
     const dst = document.getElementById("result");
     const output = document.getElementById("output");
 
@@ -84,14 +84,9 @@ window.onload = async function () {
     mapElement.id = "clickMap";
     document.getElementById("imageContainer").appendChild(mapElement);
 
+
     // Show the loading overlay
     document.getElementById("loadingOverlay").style.display = "block";
-
-    // dst.src = '';
-    // dst.style.display = 'none';
-    // const resultCanvas = document.getElementById('output');
-    // const rCtx = resultCanvas.getContext('2d');
-    // rCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
 
     if (inference_session) {
       setTimeout(async function () {
