@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" >
+    <meta name="HandheldFriendly" content="true">
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Mosaicizer</title>
 </head>
 <body>
 
 <img id="uploadedImage" src="" alt="Uploaded Image">
 <canvas id="output"></canvas>
 <div id="imageContainer">
-    <canvas id="preview" usem></canvas>
-    <img id="result" src=""  alt="result image" usemap="#clickMap"></img>
+    <canvas id="preview"></canvas>
+    <img id="result" src=""  alt="result image" usemap="#clickMap">
     <map name="clickMap" id="clickMap"></map>
 </div>
 
@@ -24,7 +27,6 @@
         <label for="pixelSizeInput"></label><input type="number" id="pixelSizeInput" min="1" max="100" value="10">
     </div>
     <div id="methodContainer">
-        <div id="methodLabel">Method</div>
         <fieldset id="radioGroup">
             <div class="radioOption">
                 <input type="radio" id="blurRadio" name="filter" value="blur" checked>
@@ -36,7 +38,7 @@
             </div>
         </fieldset>
     </div>
-    <button id="inferBtn" disabled>Infer</button>
+    <button id="inferBtn" disabled>Apply</button>
     <button id="resetBtn" disabled>Reset</button>
     <button id="saveBtn" disabled>Save</button>
 </div>
