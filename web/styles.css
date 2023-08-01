@@ -1,60 +1,59 @@
 html {
-    -webkit-text-size-adjust: none;
-    text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 body {
-    background-color: #222;
-    font-family: Arial, sans-serif;
-    padding: 1em 1em;
-    text-align: center;
-    color: white;
+  background-color: #222;
+  font-family: Arial, sans-serif;
+  padding: 1em 1em;
+  text-align: center;
+  color: white;
 }
 
 #toolbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 15%;
-    background-color: #333;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-content: center;
-    /*padding: 5px;*/
-    margin: 0 auto;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 15%;
+  background-color: #333;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-content: center;
+  /*padding: 5px;*/
+  margin: 0 auto;
 }
 
 #pixelSizeContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 60%;
-    width: 10%;
-    /*margin-top: 10px;*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 60%;
+  width: 10%;
+  /*margin-top: 10px;*/
 }
 
 #pixelSizeInput {
-    margin-top: 10%;
-    font-size: 100%;
-    width: 50%; /* Adjust this value as needed */
-    height: 50%; /* Adjust this value as needed */
+  margin-top: 10%;
+  font-size: 100%;
+  width: 50%; /* Adjust this value as needed */
+  height: 50%; /* Adjust this value as needed */
 }
 
 #toolbar button {
-    font-size: 80%;
-    border-radius: 10px;
-    width: 15%;
-    height: 50%;
-    margin: 0.1em;
+  font-size: 80%;
+  border-radius: 10px;
+  width: 15%;
+  height: 50%;
+  margin: 0.1em;
 }
 
-
-#toolbar button:hover:enabled{
-    color: #FFFFFFFF;
-    background-color: #000000;
+#toolbar button:hover:enabled {
+  color: #ffffffff;
+  background-color: #000000;
 }
 
 #methodContainer {
@@ -68,14 +67,14 @@ fieldset {
 }
 
 #radioGroup {
-    display: flex;
-    font-size: 80%;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-left: 0;
-    padding-left: 0;
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
+  display: flex;
+  font-size: 80%;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 0;
+  padding-left: 0;
+  /*margin-left: 1em;*/
+  /*margin-right: 1em;*/
 }
 
 .radioOption {
@@ -83,13 +82,13 @@ fieldset {
 }
 
 #imageContainer {
-    width: 100%;
-    height: 70vh; /* Adjust this value as needed */
-    border: 2px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 20px;
+  width: 100%;
+  height: 70vh; /* Adjust this value as needed */
+  border: 2px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
 }
 
 #uploadedImage {
