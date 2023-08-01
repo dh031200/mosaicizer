@@ -268,24 +268,24 @@ window.onload = async function () {
   });
 
   saveBtn.addEventListener("click", function () {
-    const resultCanvas = document.getElementById('output');
-    const originalImage = document.getElementById('uploadedImage');
-    const originalImageWidth = originalImage.width
-    const originalImageHeight = originalImage.height
-    resultCanvas.width = originalImageWidth;     // Set the canvas width to the original image width
+    const resultCanvas = document.getElementById("output");
+    const originalImage = document.getElementById("uploadedImage");
+    const originalImageWidth = originalImage.width;
+    const originalImageHeight = originalImage.height;
+    resultCanvas.width = originalImageWidth; // Set the canvas width to the original image width
     resultCanvas.height = originalImageHeight;
     // Draw the image onto the canvas
-    const ctx = resultCanvas.getContext('2d');
-    const img = document.getElementById('result');
+    const ctx = resultCanvas.getContext("2d");
+    const img = document.getElementById("result");
     ctx.drawImage(img, 0, 0, originalImageWidth, originalImageHeight);
 
     // Save the image
-    const link = document.createElement('a');
-    link.download = 'result.png';
+    const link = document.createElement("a");
+    link.download = "result.png";
     link.href = resultCanvas.toDataURL();
     link.click();
   });
-}
+};
 
 const preprocessing = (source, modelWidth, modelHeight) => {
   const mat = cv.imread(source); // read from img tag
