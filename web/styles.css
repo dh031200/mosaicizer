@@ -1,33 +1,54 @@
 html {
-    -webkit-touch-callout:none;
-    -webkit-user-select:none;
-    -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-text-size-adjust: none;
     text-size-adjust: none;
 }
 
 
 body {
-    background-color: #222;
+    /*background-color: #222;*/
+    background: black;
     font-family: Arial, sans-serif;
     padding: 4em 1em;
     text-align: center;
     color: white;
 }
 
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+
+
+#introImage{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 #toolbar {
+    display: none;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
     height: 15%;
-    background-color: #333;
-    display: flex;
+    background-color: #000000;
     flex-wrap: wrap;
     justify-content: space-around;
     align-content: center;
-    /*padding: 5px;*/
     margin: 0 auto;
 }
 
@@ -37,10 +58,10 @@ body {
     align-items: center;
     font-size: 60%;
     width: 10%;
-    /*margin-top: 10px;*/
 }
 
 #pixelSizeInput {
+    text-align: center;
     margin-top: 10%;
     font-size: 100%;
     width: 50%; /* Adjust this value as needed */
@@ -48,20 +69,22 @@ body {
 }
 
 #toolbar button {
-    border:none;
-    font-size: 80%;
+    border: none;
+    font-size: 100%;
     border-radius: 15px;
-    width: 15%;
+    width: 20%;
     height: 50%;
     margin: 0.1em;
-    transition:all 0.3s;
+    transition: all 0.3s;
 }
 
-#toolbar button:hover:enabled {
-    color: #ffffffff;
-    border:none;
-    background-color: #000000;
-    border-radius: 15px;
+@media (hover: hover) and (pointer: fine) {
+    button:hover:enabled {
+        color: #ffffffff;
+        border: none;
+        background-color: #ffffffb3;
+        border-radius: 15px;
+    }
 }
 
 #methodContainer {
@@ -76,7 +99,7 @@ fieldset {
 
 #radioGroup {
     display: flex;
-    font-size: 80%;
+    font-size: 90%;
     flex-direction: column;
     align-items: flex-start;
     margin-left: 0;
@@ -87,11 +110,23 @@ fieldset {
     display: block;
 }
 
+#imageUploadContainer {
+    display: inline-block;
+    width: 25%;
+    height: 25%;
+}
+
+#imageUpload {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 #imageContainer {
     width: 100%;
     height: 60vh; /* Adjust this value as needed */
-    border: 2px solid #ccc;
-    display: flex;
+    border: 3px dashed white;
+    display: none;
     justify-content: center;
     align-items: center;
     border-radius: 20px;
