@@ -39,6 +39,7 @@ window.onload = async function () {
   const saveBtn = document.getElementById("saveBtn");
 
   document.getElementById("intro").style.display = "none";
+  document.getElementById("adContainer").style.display = "flex";
   document.getElementById("toolbar").style.display = "flex";
   document.getElementById("imageContainer").style.display = "flex";
 
