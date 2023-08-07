@@ -38,9 +38,9 @@ window.onload = async function () {
   const resetBtn = document.getElementById("resetBtn");
   const saveBtn = document.getElementById("saveBtn");
 
-  document.getElementById("intro").style.display = 'none';
-  document.getElementById("toolbar").style.display = 'flex';
-  document.getElementById("imageContainer").style.display = 'flex'
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("toolbar").style.display = "flex";
+  document.getElementById("imageContainer").style.display = "flex";
 
   document.getElementById("imageUpload").addEventListener("click", function () {
     document.getElementById("hiddenFileInput").click();
@@ -57,8 +57,9 @@ window.onload = async function () {
           originalImageWidth = this.naturalWidth; // Store the original image width
           originalImageHeight = this.naturalHeight; // Store the original image height
 
-          document.getElementById("imageUploadContainer").style.display = "none"
-          document.getElementById("imageContainer").style.border = "none"
+          document.getElementById("imageUploadContainer").style.display =
+            "none";
+          document.getElementById("imageContainer").style.border = "none";
           const src = document.getElementById("uploadedImage");
           const dst = document.getElementById("preview");
           src.src = event.target.result;
@@ -91,7 +92,6 @@ window.onload = async function () {
     mapElement.name = "clickMap";
     mapElement.id = "clickMap";
     document.getElementById("imageContainer").appendChild(mapElement);
-
 
     // Show the loading overlay
     document.getElementById("loadingOverlay").style.display = "block";
@@ -249,9 +249,10 @@ window.onload = async function () {
     document.getElementById("uploadedImage").style.display = "none";
     document.getElementById("result").src = "";
     document.getElementById("result").style.display = "none";
-    document.getElementById("imageUploadContainer").style.display = "inline-block"
+    document.getElementById("imageUploadContainer").style.display =
+      "inline-block";
 
-    document.getElementById("imageContainer").style.border = "3px dashed white"
+    document.getElementById("imageContainer").style.border = "3px dashed white";
 
     document.getElementById("clickMap").remove();
     const mapElement = document.createElement("map");
@@ -332,8 +333,8 @@ function applyFilter(image, box) {
   const blurRadio = document.getElementById("blurRadio");
   const pixelSizeInput = document.getElementById("pixelSizeInput");
   let pixelSize = parseInt(pixelSizeInput.value, 10);
-  pixelSize = pixelSize < 5 ? 5 : pixelSize
-  pixelSize = pixelSize > 90 ? 90 : pixelSize
+  pixelSize = pixelSize < 5 ? 5 : pixelSize;
+  pixelSize = pixelSize > 90 ? 90 : pixelSize;
   pixelSizeInput.value = pixelSize.toString();
 
   console.log(pixelSize);
