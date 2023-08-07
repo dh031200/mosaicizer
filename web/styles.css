@@ -1,173 +1,168 @@
 html {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    -webkit-text-size-adjust: none;
-    text-size-adjust: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
-
 body {
-    /*background-color: #222;*/
-    background: black;
-    font-family: Arial, sans-serif;
-    padding: 4em 1em;
-    text-align: center;
-    color: white;
+  /*background-color: #222;*/
+  background: black;
+  font-family: Arial, sans-serif;
+  padding: 4em 1em;
+  text-align: center;
+  color: white;
 }
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
-
 
 /* Firefox */
-input[type=number] {
-    -moz-appearance: textfield;
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
-
-
-#introImage{
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+#introImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 #toolbar {
-    display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 15%;
-    background-color: #000000;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-content: center;
-    margin: 0 auto;
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 15%;
+  background-color: #000000;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-content: center;
+  margin: 0 auto;
 }
 
 #pixelSizeContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 60%;
-    width: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 60%;
+  width: 10%;
 }
 
 #pixelSizeInput {
-    text-align: center;
-    margin-top: 10%;
-    font-size: 100%;
-    width: 50%; /* Adjust this value as needed */
-    height: 50%; /* Adjust this value as needed */
+  text-align: center;
+  margin-top: 10%;
+  font-size: 100%;
+  width: 50%; /* Adjust this value as needed */
+  height: 50%; /* Adjust this value as needed */
 }
 
 #toolbar button {
-    border: none;
-    font-size: 100%;
-    border-radius: 15px;
-    width: 20%;
-    height: 50%;
-    margin: 0.1em;
-    transition: all 0.3s;
+  border: none;
+  font-size: 100%;
+  border-radius: 15px;
+  width: 20%;
+  height: 50%;
+  margin: 0.1em;
+  transition: all 0.3s;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    button:hover:enabled {
-        color: #ffffffff;
-        border: none;
-        background-color: #ffffffb3;
-        border-radius: 15px;
-    }
+  button:hover:enabled {
+    color: #ffffffff;
+    border: none;
+    background-color: #ffffffb3;
+    border-radius: 15px;
+  }
 }
 
 #methodContainer {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 fieldset {
-    border: none;
-    margin-left: 10px;
+  border: none;
+  margin-left: 10px;
 }
 
 #radioGroup {
-    display: flex;
-    font-size: 90%;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-left: 0;
-    padding-left: 0;
+  display: flex;
+  font-size: 90%;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .radioOption {
-    display: block;
+  display: block;
 }
 
 #imageUploadContainer {
-    display: inline-block;
-    width: 25%;
-    height: 25%;
+  display: inline-block;
+  width: 25%;
+  height: 25%;
 }
 
 #imageUpload {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 #imageContainer {
-    width: 100%;
-    height: 60vh; /* Adjust this value as needed */
-    border: 3px dashed white;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    border-radius: 20px;
+  width: 100%;
+  height: 60vh; /* Adjust this value as needed */
+  border: 3px dashed white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
 }
 
 #uploadedImage {
-    display: none;
+  display: none;
 }
 
 #preview,
 #result {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: none; /* Hide the image by default */
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: none; /* Hide the image by default */
 }
 
 #output {
-    display: none;
+  display: none;
 }
 
 #loadingOverlay {
-    display: none;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 #loadingOverlay p {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 24px;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
 }
-
