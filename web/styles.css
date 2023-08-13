@@ -1,180 +1,232 @@
 html {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-text-size-adjust: none;
-  text-size-adjust: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 body {
-  /*background-color: #222;*/
-  background: black;
-  font-family: Arial, sans-serif;
-  padding: 1em 1em;
-  text-align: center;
-  align-items: center;
-  color: white;
+    background: black;
+    font-family: Arial, sans-serif;
+    padding: 1rem 1rem;
+    text-align: center;
+    align-items: center;
+    color: white;
 }
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+}
+
+.inactive {
+    pointer-events: none;
+    opacity: 0.5; /* 선택적: 페이지의 내용을 반투명하게 표시하여 비활성화 상태임을 나타냄 */
+}
+
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type="number"] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 #adContainer {
-  margin-top: 0;
-  display: none;
-  width: 100%;
-  height: 10vh;
-  object-fit: contain;
+    margin-top: 0;
+    display: none;
+    width: 100%;
+    height: 10vh;
+    object-fit: contain;
 }
 
 #intro {
-  height: 60vh;
-  margin: 0 auto;
+    margin: 3rem auto;
+    align-items: center;
+    display: block;
+    max-width: 800px;
+    height: 50vh;
+    object-fit: contain;
 }
 
 #introImage {
-  height: 80%;
+    width: 80%;
 }
 
 #toolbar {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 15vh;
-  background-color: #000000;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-content: center;
-  margin: 0 auto;
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 15vh;
+    background-color: #000000;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin: 1rem auto 1rem auto;
 }
 
-#pixelSizeContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 60%;
-  width: 10%;
+#innerToolbar {
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    /*position: absolute;*/
+    /*top: 50%;*/
+    /*transform: translate(0, -50%);*/
 }
 
-#pixelSizeInput {
-  text-align: center;
-  margin-top: 10%;
-  font-size: 100%;
-  width: 50%; /* Adjust this value as needed */
-  height: 50%; /* Adjust this value as needed */
+#pixelContainer {
+    display:flex;
+    width: 100vw;
+    flex-direction: row;
 }
 
-#toolbar button {
-  border: none;
-  font-size: 100%;
-  border-radius: 15px;
-  width: 20%;
-  height: 50%;
-  margin: 0.1em;
-  transition: all 0.3s;
+#pixelSizeSlider{
+    width: 70vw;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    background: repeating-linear-gradient(
+            to right,
+            #ccc,
+            #ccc 1px,
+            #fff 1px,
+            #fff 10%
+    );
 }
 
-@media (hover: hover) and (pointer: fine) {
-  button:hover:enabled {
-    color: #ffffffff;
-    border: none;
-    background-color: #ffffffb3;
-    border-radius: 15px;
-  }
+#pixelSizeSliderLabel {
+    margin-right: 1rem;
+    width: 20vw;
+    display: flex;
+    flex-direction: column;
 }
+
+#checkboxContainer{
+    margin-left: 1rem;
+    display:flex;
+    width: 10vw;
+    flex-direction: column;
+}
+
+#mainToolbar {
+    display:flex;
+    flex-direction: row;
+}
+
 
 #methodContainer {
-  display: flex;
-  align-items: center;
-}
-
-fieldset {
-  border: none;
-  margin-left: 10px;
+    width: 20vw;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    margin: auto 1rem auto auto
 }
 
 #radioGroup {
-  display: flex;
-  font-size: 90%;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-left: 0;
-  padding-left: 0;
+    display: flex;
+    width: 20vw;
+    font-size: 90%;
+    flex-direction: column;
+    align-items: flex-start;
+    /*margin: auto auto auto 2rem;*/
+}
+
+#btnContainer {
+    display: flex;
+    width: 70vw;
+    height: 10vh;
+    flex-direction: row;
+    align-items: center;
 }
 
 .radioOption {
-  display: block;
+    display: block;
+}
+
+#toolbar button {
+    border: none;
+    font-size: 100%;
+    border-radius: 15px;
+    width: 20vw;
+    height: 80%;
+    transition: all 0.3s;
+    margin: auto
+}
+
+@media (hover: hover) and (pointer: fine) {
+    button:hover:enabled {
+        color: #ffffffff;
+        border: none;
+        background-color: #ffffffb3;
+        border-radius: 15px;
+    }
 }
 
 #imageUploadContainer {
-  display: inline-block;
-  width: 25%;
-  height: 25%;
+    display: block;
+    width: 25%;
+    height: 25%;
 }
 
 #imageUpload {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 #imageContainer {
-  width: 100%;
-  height: 55vh; /* Adjust this value as needed */
-  border: 3px dashed white;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  border-radius: 20px;
+    width: 100%;
+    height: 55vh; /* Adjust this value as needed */
+    border: 3px dashed white;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+}
+
+#hiddenFileInput {
+    display: none;
 }
 
 #uploadedImage {
-  display: none;
+    display: none;
 }
 
 #preview,
 #result {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  display: none; /* Hide the image by default */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none; /* Hide the image by default */
 }
 
 #output {
-  display: none;
-}
-
-#loadingOverlay {
-  display: none;
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+    display: none;
 }
 
 #loadingOverlay p {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 24px;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
 }
