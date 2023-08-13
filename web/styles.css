@@ -7,29 +7,13 @@ html {
 }
 
 body {
+  /*background-color: #222;*/
   background: black;
   font-family: Arial, sans-serif;
-  padding: 1rem 1rem;
+  padding: 1em 1em;
   text-align: center;
   align-items: center;
   color: white;
-}
-
-#loadingOverlay,
-#downloadingOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: none;
-}
-
-.inactive {
-  pointer-events: none;
-  opacity: 0.5;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -53,16 +37,12 @@ input[type="number"] {
 }
 
 #intro {
-  margin: 3rem auto;
-  align-items: center;
-  display: block;
-  max-width: 800px;
-  height: 50vh;
-  object-fit: contain;
+  height: 60vh;
+  margin: 0 auto;
 }
 
 #introImage {
-  width: 80%;
+  height: 80%;
 }
 
 #toolbar {
@@ -76,95 +56,34 @@ input[type="number"] {
   background-color: #000000;
   flex-wrap: wrap;
   justify-content: space-around;
-  align-items: center;
-  margin: 1rem auto 1rem auto;
+  align-content: center;
+  margin: 0 auto;
 }
 
-#innerToolbar {
-  display: block;
-  flex-direction: column;
-  align-items: center;
-  /*position: absolute;*/
-  /*top: 50%;*/
-  /*transform: translate(0, -50%);*/
-}
-
-#pixelContainer {
-  display: flex;
-  width: 100vw;
-  flex-direction: row;
-}
-
-#pixelSizeSlider {
-  width: 70vw;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  margin-bottom: 1rem;
-  background: repeating-linear-gradient(
-    to right,
-    #ccc,
-    #ccc 1px,
-    #fff 1px,
-    #fff 10%
-  );
-}
-
-#pixelSizeSliderLabel {
-  margin-right: 1rem;
-  width: 20vw;
+#pixelSizeContainer {
   display: flex;
   flex-direction: column;
-}
-
-#checkboxContainer {
-  margin-left: 1rem;
-  display: flex;
-  width: 10vw;
-  flex-direction: column;
-}
-
-#mainToolbar {
-  display: flex;
-  flex-direction: row;
-}
-
-#methodContainer {
-  width: 20vw;
-  height: 10vh;
-  display: flex;
   align-items: center;
-  margin: auto 1rem auto auto;
+  font-size: 60%;
+  width: 10%;
 }
 
-#radioGroup {
-  display: flex;
-  width: 20vw;
-  font-size: 90%;
-  flex-direction: column;
-  align-items: flex-start;
-  /*margin: auto auto auto 2rem;*/
-}
-
-#btnContainer {
-  display: flex;
-  width: 70vw;
-  height: 10vh;
-  flex-direction: row;
-  align-items: center;
-}
-
-.radioOption {
-  display: block;
+#pixelSizeInput {
+  text-align: center;
+  margin-top: 10%;
+  font-size: 100%;
+  width: 50%; /* Adjust this value as needed */
+  height: 50%; /* Adjust this value as needed */
 }
 
 #toolbar button {
   border: none;
   font-size: 100%;
   border-radius: 15px;
-  width: 20vw;
-  height: 80%;
+  width: 20%;
+  height: 50%;
+  margin: 0.1em;
   transition: all 0.3s;
-  margin: auto;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -176,8 +95,31 @@ input[type="number"] {
   }
 }
 
-#imageUploadContainer {
+#methodContainer {
+  display: flex;
+  align-items: center;
+}
+
+fieldset {
+  border: none;
+  margin-left: 10px;
+}
+
+#radioGroup {
+  display: flex;
+  font-size: 90%;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.radioOption {
   display: block;
+}
+
+#imageUploadContainer {
+  display: inline-block;
   width: 25%;
   height: 25%;
 }
@@ -198,10 +140,6 @@ input[type="number"] {
   border-radius: 20px;
 }
 
-#hiddenFileInput {
-  display: none;
-}
-
 #uploadedImage {
   display: none;
 }
@@ -218,8 +156,18 @@ input[type="number"] {
   display: none;
 }
 
-#loadingOverlay p,
-#downloadingOverlay p {
+#loadingOverlay {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+#loadingOverlay p {
   position: absolute;
   top: 50%;
   left: 50%;
