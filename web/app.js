@@ -11,14 +11,14 @@ const App = {
   currentFilterType: "blur",
   currentSliderValue: 3,
   preprocessedFaces: {
-    "mosaic": {},
-    "blur": {}
+    mosaic: {},
+    blur: {},
   },
   pixelEnum: [10, 20, 40, 65, 95],
   introElement: document.getElementById("intro"),
   adContainerElement: document.getElementById("adContainer"),
-  loadingOverlayElement: document.getElementById('loadingOverlay'),
-  downloadingOverlayElement: document.getElementById('downloadingOverlay'),
+  loadingOverlayElement: document.getElementById("loadingOverlay"),
+  downloadingOverlayElement: document.getElementById("downloadingOverlay"),
   toolbarElement: document.getElementById("toolbar"),
   imageContainerElement: document.getElementById("imageContainer"),
   imageUploadContainerElement: document.getElementById("imageUploadContainer"),
@@ -35,22 +35,24 @@ const App = {
   previewCanvasElement: document.getElementById("preview"),
   resultElement: document.getElementById("result"),
   outputElement: document.getElementById("output"),
-}
+};
 
 async function onOpenCvReady() {
   try {
-    App.inference_session = await ort.InferenceSession.create("yolov8-face.onnx");
+    App.inference_session = await ort.InferenceSession.create(
+      "yolov8-face.onnx",
+    );
   } catch (error) {
     console.error("Failed to load the model:", error);
   }
 
   App.config = new ort.Tensor(
-      "float32",
-      new Float32Array([
-        100, // topk per class
-        0.45, // iou threshold
-        App.scoreThreshold, // score threshold
-      ]),
+    "float32",
+    new Float32Array([
+      100, // topk per class
+      0.45, // iou threshold
+      App.scoreThreshold, // score threshold
+    ]),
   ); // nms config tensor
 
   // Load the ONNX model when the page is loaded
@@ -67,8 +69,12 @@ async function perf() {
   App.toolbarElement.style.display = "flex";
   App.imageContainerElement.style.display = "flex";
 
-  App.mosaicRadioElement.addEventListener("change", () => handleFilterChange("mosaic"));
-  App.blurRadioElement.addEventListener("change", () => handleFilterChange("blur"));
+  App.mosaicRadioElement.addEventListener("change", () =>
+    handleFilterChange("mosaic"),
+  );
+  App.blurRadioElement.addEventListener("change", () =>
+    handleFilterChange("blur"),
+  );
   App.sliderElement.addEventListener("input", handleSliderInput);
   App.imageUploadElement.addEventListener("click", handleImageUpload);
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
@@ -83,12 +89,12 @@ function handleImageUpload() {
 
 function handleFileInputChange(e) {
   const file = e.target.files[0];
-  const validExtensions = ['jpg', 'jpeg', 'png'];
-  const fileExtension = file.name.split('.').pop().toLowerCase();
+  const validExtensions = ["jpg", "jpeg", "png"];
+  const fileExtension = file.name.split(".").pop().toLowerCase();
 
   if (!validExtensions.includes(fileExtension)) {
-    alert('Invalid file type. Please upload a JPG, JPEG or PNG image.');
-    e.target.value = ''; // Reset the input
+    alert("Invalid file type. Please upload a JPG, JPEG or PNG image.");
+    e.target.value = ""; // Reset the input
     return;
   }
 
@@ -102,7 +108,9 @@ function handleFileInputChange(e) {
       App.imageContainerElement.style.border = "none";
 
       const imageAspectRatio = this.width / this.height;
-      const containerAspectRatio = App.imageContainerElement.clientWidth / App.imageContainerElement.clientHeight;
+      const containerAspectRatio =
+        App.imageContainerElement.clientWidth /
+        App.imageContainerElement.clientHeight;
 
       let scaleFactor;
       if (imageAspectRatio > containerAspectRatio) {
@@ -116,7 +124,7 @@ function handleFileInputChange(e) {
 
       App.previewCanvasElement.width = resizedWidth;
       App.previewCanvasElement.height = resizedHeight;
-      const ctx = App.previewCanvasElement.getContext('2d');
+      const ctx = App.previewCanvasElement.getContext("2d");
       ctx.drawImage(img, 0, 0, resizedWidth, resizedHeight);
 
       App.previewCanvasElement.style.display = "block";
@@ -131,7 +139,7 @@ function handleFileInputChange(e) {
 }
 
 function handleSliderInput() {
-  document.getElementById('pixelSizeValue').textContent = this.value;
+  document.getElementById("pixelSizeValue").textContent = this.value;
   App.currentSliderValue = parseInt(App.sliderElement.value, 10) - 1;
   redrawFace();
 }
@@ -154,10 +162,10 @@ async function handleApplyBtnClick() {
 
 function handleResetBtnClick() {
   App.currentFace = null;
-  App.currentSliderValue = 3
+  App.currentSliderValue = 3;
   App.preprocessedFaces = {
-    "mosaic": {},
-    "blur": {}
+    mosaic: {},
+    blur: {},
   };
 
   App.applyToAllElement.checked = true;
@@ -189,7 +197,12 @@ function handleResetBtnClick() {
   App.previewCanvasElement.width = 0;
   App.previewCanvasElement.height = 0;
 
-  pCtx.clearRect(0, 0, App.previewCanvasElement.width, App.previewCanvasElement.height);
+  pCtx.clearRect(
+    0,
+    0,
+    App.previewCanvasElement.width,
+    App.previewCanvasElement.height,
+  );
 
   // Disable the infer, reset, and save buttons
   App.applyBtnElement.disabled = true;
@@ -198,7 +211,7 @@ function handleResetBtnClick() {
 }
 
 function handleSaveBtnClick() {
-  showLoadingOverlay(true, "download")
+  showLoadingOverlay(true, "download");
   setTimeout(async function () {
     App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
     App.outputElement.height = App.uploadedImageElement.height;
@@ -221,19 +234,19 @@ const preprocessing = (source, modelWidth, modelHeight) => {
   // padding image to [n x n] dim
   const maxSize = Math.max(matC3.rows, matC3.cols); // get max size from width and height
   const xPad = maxSize - matC3.cols, // set xPadding
-      xRatio = maxSize / modelWidth; // set xRatio
+    xRatio = maxSize / modelWidth; // set xRatio
   const yPad = maxSize - matC3.rows, // set yPadding
-      yRatio = maxSize / modelHeight; // set yRatio
+    yRatio = maxSize / modelHeight; // set yRatio
   const matPad = new cv.Mat(); // new mat for padded image
   cv.copyMakeBorder(matC3, matPad, 0, yPad, 0, xPad, cv.BORDER_CONSTANT); // padding black
 
   const input = cv.blobFromImage(
-      matPad,
-      1 / 255.0, // normalize
-      new cv.Size(modelWidth, modelHeight), // resize to model input size
-      new cv.Scalar(0, 0, 0),
-      true, // swapRB
-      false, // crop
+    matPad,
+    1 / 255.0, // normalize
+    new cv.Size(modelWidth, modelHeight), // resize to model input size
+    new cv.Scalar(0, 0, 0),
+    true, // swapRB
+    false, // crop
   ); // preprocessing image matrix
 
   // release mat opencv
@@ -245,34 +258,31 @@ const preprocessing = (source, modelWidth, modelHeight) => {
 };
 
 async function processImage() {
-// Create an OpenCV Mat from the image
+  // Create an OpenCV Mat from the image
   const modelInputShape = [1, 3, 640, 640];
   const [modelWidth, modelHeight] = modelInputShape.slice(2);
   const [input, xRatio, yRatio] = preprocessing(
-      App.uploadedImageElement,
-      modelWidth,
-      modelHeight,
+    App.uploadedImageElement,
+    modelWidth,
+    modelHeight,
   );
 
-  const tensor = new ort.Tensor(
-      "float32",
-      input.data32F,
-      modelInputShape,
-  );
-  const {output0} = await App.inference_session.run({images: tensor});
-  const {selected} = await App.nms_session.run({
+  const tensor = new ort.Tensor("float32", input.data32F, modelInputShape);
+  const { output0 } = await App.inference_session.run({ images: tensor });
+  const { selected } = await App.nms_session.run({
     detection: output0,
     config: App.config,
   });
 
   // Calculate the scale factors
-  App.scale = App.previewCanvasElement.width / App.uploadedImageElement.naturalWidth
+  App.scale =
+    App.previewCanvasElement.width / App.uploadedImageElement.naturalWidth;
 
   // looping through output
   for (let idx = 0; idx < selected.dims[1]; idx++) {
     const data = selected.data.slice(
-        idx * selected.dims[2],
-        (idx + 1) * selected.dims[2],
+      idx * selected.dims[2],
+      (idx + 1) * selected.dims[2],
     ); // get rows
     const box = data.slice(0, 4);
     const scores = data.slice(4); // classes probability scores
@@ -297,12 +307,18 @@ async function processImage() {
   const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3);
   cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR);
 
-  for (let filterType of ['mosaic', 'blur']) {
+  for (let filterType of ["mosaic", "blur"]) {
     for (let pixelIdx = 0; pixelIdx < 5; pixelIdx++) {
       let processedImage = image.clone();
       for (let i = 0; i < App.boxes.length; i++) {
         const box = App.boxes[i];
-        let processedRoi = applyFilterWithPixelSizeAndFilterType(processedImage, box, pixelIdx, filterType, true);
+        let processedRoi = applyFilterWithPixelSizeAndFilterType(
+          processedImage,
+          box,
+          pixelIdx,
+          filterType,
+          true,
+        );
         if (!App.preprocessedFaces[filterType][pixelIdx]) {
           App.preprocessedFaces[filterType][pixelIdx] = [];
         }
@@ -349,7 +365,10 @@ async function processImage() {
       // Check if the current region is the original or the filtered region
       if (norm === 0) {
         // If it's the original region, get the preprocessed image from preprocessedFaces
-        let preprocessedRoi = App.preprocessedFaces[App.currentFilterType][App.currentSliderValue][i]; // i is the index of the current box
+        let preprocessedRoi =
+          App.preprocessedFaces[App.currentFilterType][App.currentSliderValue][
+            i
+          ]; // i is the index of the current box
         preprocessedRoi.copyTo(roi);
       } else {
         // If it's the filtered region, replace it with the original region
@@ -390,7 +409,13 @@ async function processImage() {
   App.applyBtnElement.disabled = true;
 }
 
-function applyFilterWithPixelSizeAndFilterType(image, box, pixelIdx, filterType, thumbnail) {
+function applyFilterWithPixelSizeAndFilterType(
+  image,
+  box,
+  pixelIdx,
+  filterType,
+  thumbnail,
+) {
   let pixelSize = App.pixelEnum[pixelIdx];
   let [x, y, w, h] = box.bounding;
   if (thumbnail) {
@@ -403,17 +428,33 @@ function applyFilterWithPixelSizeAndFilterType(image, box, pixelIdx, filterType,
   }
 
   let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
-  cv.ellipse(mask, new cv.Point(w / 2, h / 2), new cv.Size(w / 2, h / 2), 0, 0, 360, new cv.Scalar(255, 255, 255), -1);
+  cv.ellipse(
+    mask,
+    new cv.Point(w / 2, h / 2),
+    new cv.Size(w / 2, h / 2),
+    0,
+    0,
+    360,
+    new cv.Scalar(255, 255, 255),
+    -1,
+  );
   let roi = image.roi(new cv.Rect(x, y, w, h));
   let roiClone = roi.clone();
 
-  if (filterType === 'mosaic') {
+  if (filterType === "mosaic") {
     let pixelated = new cv.Mat();
-    cv.resize(roiClone, pixelated, new cv.Size(Math.floor(w / pixelSize), Math.floor(h / pixelSize)), 0, 0, cv.INTER_LINEAR);
+    cv.resize(
+      roiClone,
+      pixelated,
+      new cv.Size(Math.floor(w / pixelSize), Math.floor(h / pixelSize)),
+      0,
+      0,
+      cv.INTER_LINEAR,
+    );
     cv.resize(pixelated, pixelated, new cv.Size(w, h), 0, 0, cv.INTER_NEAREST);
     pixelated.copyTo(roiClone, mask);
     pixelated.delete();
-  } else if (filterType === 'blur') {
+  } else if (filterType === "blur") {
     let blurred = new cv.Mat();
     pixelSize = pixelSize * 3;
     pixelSize = pixelSize % 2 === 0 ? pixelSize + 1 : pixelSize;
@@ -458,7 +499,13 @@ function applyFilterToOriginalImage() {
     let [x, y, w, h] = box.bounding;
 
     let roi = image.roi(new cv.Rect(x, y, w, h));
-    let processedRoi = applyFilterWithPixelSizeAndFilterType(image, box, App.currentSliderValue, App.currentFilterType, false);
+    let processedRoi = applyFilterWithPixelSizeAndFilterType(
+      image,
+      box,
+      App.currentSliderValue,
+      App.currentFilterType,
+      false,
+    );
     processedRoi.copyTo(roi);
     roi.delete();
     processedRoi.delete();
@@ -473,28 +520,27 @@ function applyFilterToOriginalImage() {
   rgbMat.delete();
 }
 
-
 function handleFilterChange(filterType) {
   App.currentFilterType = filterType;
   redrawFace();
 }
 
 function showLoadingOverlay(overlay, method) {
-  document.body.classList.add('inactive');
+  document.body.classList.add("inactive");
   if (overlay) {
-    if (method === "download"){
-      App.downloadingOverlayElement.style.display = 'block';
-    }else {
-      App.loadingOverlayElement.style.display = 'block';
+    if (method === "download") {
+      App.downloadingOverlayElement.style.display = "block";
+    } else {
+      App.loadingOverlayElement.style.display = "block";
     }
   }
 }
 
 function hideLoadingOverlay() {
-  App.loadingOverlayElement.style.display = 'none';
-  App.downloadingOverlayElement.style.display = 'none';
+  App.loadingOverlayElement.style.display = "none";
+  App.downloadingOverlayElement.style.display = "none";
   setTimeout(() => {
-    document.body.classList.remove('inactive');
+    document.body.classList.remove("inactive");
   }, 100);
 }
 
@@ -509,6 +555,6 @@ async function main() {
 }
 
 let pathsConfig = {
-  wasm: "./build_wasm/opencv.js"
-}
+  wasm: "./build_wasm/opencv.js",
+};
 loadOpenCV(pathsConfig, main);
