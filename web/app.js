@@ -6,6 +6,7 @@ const App = {
   originalImageHeight: null,
   scale: null,
   boxes: [],
+  isApplied: [],
   scoreThreshold: 0.25,
   currentFace: null,
   currentFilterType: "blur",
@@ -355,10 +356,10 @@ async function processImage() {
       if (!App.applyToAllElement.checked) {
         App.currentFace = this;
       }
+      App.isApplied[i] = !App.isApplied[i];
       // Subtract the original region from the current region
       let difference = new cv.Mat();
       cv.subtract(roi, originalRegion, difference);
-
       // Calculate the norm of the difference
       let norm = cv.norm(difference, cv.NORM_L1);
 
@@ -385,6 +386,7 @@ async function processImage() {
       difference.delete();
     });
     document.getElementById("clickMap").appendChild(faceArea);
+    App.isApplied.push(false);
   }
 
   cv.imshow("preview", mat);
@@ -495,20 +497,22 @@ function applyFilterToOriginalImage() {
   cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR);
 
   for (let i = 0; i < App.boxes.length; i++) {
-    const box = App.boxes[i];
-    let [x, y, w, h] = box.bounding;
+    if (App.isApplied[i]) {
+      const box = App.boxes[i];
+      let [x, y, w, h] = box.bounding;
 
-    let roi = image.roi(new cv.Rect(x, y, w, h));
-    let processedRoi = applyFilterWithPixelSizeAndFilterType(
-      image,
-      box,
-      App.currentSliderValue,
-      App.currentFilterType,
-      false,
-    );
-    processedRoi.copyTo(roi);
-    roi.delete();
-    processedRoi.delete();
+      let roi = image.roi(new cv.Rect(x, y, w, h));
+      let processedRoi = applyFilterWithPixelSizeAndFilterType(
+        image,
+        box,
+        App.currentSliderValue,
+        App.currentFilterType,
+        false,
+      );
+      processedRoi.copyTo(roi);
+      roi.delete();
+      processedRoi.delete();
+    }
   }
 
   const rgbMat = new cv.Mat();
