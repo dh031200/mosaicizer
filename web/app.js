@@ -390,7 +390,10 @@ async function processImage() {
     });
     document.getElementById("clickMap").appendChild(faceArea);
     App.isApplied.push(false);
-    App.appliedMethod.push({method:App.currentFilterType, pixelIdx:App.currentSliderValue});
+    App.appliedMethod.push({
+      method: App.currentFilterType,
+      pixelIdx: App.currentSliderValue,
+    });
   }
 
   cv.imshow("preview", mat);
