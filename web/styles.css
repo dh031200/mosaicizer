@@ -15,7 +15,7 @@ body {
     color: white;
 }
 
-#loadingOverlay {
+#loadingOverlay, #downloadingOverlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -28,7 +28,7 @@ body {
 
 .inactive {
     pointer-events: none;
-    opacity: 0.5; /* 선택적: 페이지의 내용을 반투명하게 표시하여 비활성화 상태임을 나타냄 */
+    opacity: 0.5;
 }
 
 
@@ -219,7 +219,7 @@ input[type="number"] {
     display: none;
 }
 
-#loadingOverlay p {
+#loadingOverlay p, #downloadingOverlay p{
     position: absolute;
     top: 50%;
     left: 50%;

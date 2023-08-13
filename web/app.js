@@ -4,8 +4,7 @@ const App = {
     config: null,
     originalImageWidth: null,
     originalImageHeight: null,
-    scaleX: null,
-    scaleY: null,
+    scale: null,
     boxes: [],
     scoreThreshold: 0.25,
     currentFace: null,
@@ -19,6 +18,7 @@ const App = {
     introElement: document.getElementById("intro"),
     adContainerElement: document.getElementById("adContainer"),
     loadingOverlayElement: document.getElementById('loadingOverlay'),
+    downloadingOverlayElement: document.getElementById('downloadingOverlay'),
     toolbarElement: document.getElementById("toolbar"),
     imageContainerElement: document.getElementById("imageContainer"),
     imageUploadContainerElement: document.getElementById("imageUploadContainer"),
@@ -130,7 +130,7 @@ function handleSliderInput() {
 }
 
 async function handleApplyBtnClick() {
-    showLoadingOverlay(true);
+    showLoadingOverlay(true, "load");
 
     setTimeout(async function () {
         if (App.inference_session) {
@@ -191,25 +191,25 @@ function handleResetBtnClick() {
 }
 
 function handleSaveBtnClick() {
-    document.body.classList.add('inactive');
+    showLoadingOverlay(true, "download")
     setTimeout(async function () {
-        applyFilterToOriginalImage();
-
         App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
         App.outputElement.height = App.uploadedImageElement.height;
+        applyFilterToOriginalImage();
+
+        // App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
+        // App.outputElement.height = App.uploadedImageElement.height;
         // Draw the image onto the canvas
-        const ctx = App.outputElement.getContext("2d");
-        const img = document.getElementById("result");
-        ctx.drawImage(img, 0, 0, App.uploadedImageElement.width, App.uploadedImageElement.height);
+        // const ctx = App.outputElement.getContext("2d");
+        // const img = document.getElementById("result");
+        // ctx.drawImage(img, 0, 0, App.uploadedImageElement.width, App.uploadedImageElement.height);
 
         // Save the image
         const link = document.createElement("a");
         link.download = "result.png";
         link.href = App.outputElement.toDataURL();
         link.click();
-        setTimeout(() => {
-            document.body.classList.remove('inactive');
-        }, 100);
+        hideLoadingOverlay();
     });
 }
 
@@ -266,8 +266,7 @@ async function processImage() {
     });
 
     // Calculate the scale factors
-    App.scaleX = App.previewCanvasElement.width / App.uploadedImageElement.naturalWidth;
-    App.scaleY = App.previewCanvasElement.height / App.uploadedImageElement.naturalHeight;
+    App.scale = App.previewCanvasElement.width / App.uploadedImageElement.naturalWidth
 
     // looping through output
     for (let idx = 0; idx < selected.dims[1]; idx++) {
@@ -306,7 +305,7 @@ async function processImage() {
             let processedImage = image.clone();
             for (let i = 0; i < App.boxes.length; i++) {
                 const box = App.boxes[i];
-                let processedRoi = applyFilterWithPixelSizeAndFilterType(processedImage, box, pixelIdx, filterType);
+                let processedRoi = applyFilterWithPixelSizeAndFilterType(processedImage, box, pixelIdx, filterType, true);
                 if (!App.preprocessedFaces[filterType][pixelIdx]) {
                     App.preprocessedFaces[filterType][pixelIdx] = [];
                 }
@@ -322,16 +321,15 @@ async function processImage() {
         const box = App.boxes[i];
 
         // Define the bounding box coordinates
-        let x = box.bounding[0] * App.scaleX;
-        let y = box.bounding[1] * App.scaleY;
-        let w = box.bounding[2] * App.scaleX;
-        let h = box.bounding[3] * App.scaleY;
+        let x = box.bounding[0] * App.scale;
+        let y = box.bounding[1] * App.scale;
+        let w = box.bounding[2] * App.scale;
+        let h = box.bounding[3] * App.scale;
 
         // Store the original and filtered regions
         // Create an area element for the face
         let faceArea = document.createElement("area");
         faceArea.shape = "rect";
-        // faceArea.coords = `${x * App.scaleX},${y * App.scaleY},${x * App.scaleX + w * App.scaleX},${y * App.scaleY + h * App.scaleY}`;
         faceArea.coords = `${x},${y},${x + w},${y + h}`;
 
         let roi = image.roi(new cv.Rect(x, y, w, h));
@@ -363,9 +361,9 @@ async function processImage() {
 
             const rgbMat = new cv.Mat();
             cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
-            cv.imshow("output", rgbMat);
+            cv.imshow("preview", rgbMat);
 
-            App.resultElement.src = App.outputElement.toDataURL();
+            App.resultElement.src = App.previewCanvasElement.toDataURL();
 
             // Clean up
             difference.delete();
@@ -373,8 +371,8 @@ async function processImage() {
         document.getElementById("clickMap").appendChild(faceArea);
     }
 
-    cv.imshow("output", mat);
-    App.resultElement.src = App.outputElement.toDataURL();
+    cv.imshow("preview", mat);
+    App.resultElement.src = App.previewCanvasElement.toDataURL();
 
     App.resultElement.style.display = "block";
 
@@ -395,13 +393,17 @@ async function processImage() {
     App.applyBtnElement.disabled = true;
 }
 
-function applyFilterWithPixelSizeAndFilterType(image, box, pixelIdx, filterType) {
+function applyFilterWithPixelSizeAndFilterType(image, box, pixelIdx, filterType, thumbnail) {
     let pixelSize = App.pixelEnum[pixelIdx];
     let [x, y, w, h] = box.bounding;
-    x = x * App.scaleX;
-    y = y * App.scaleY;
-    w = w * App.scaleX;
-    h = h * App.scaleY;
+    if (thumbnail) {
+        x = x * App.scale;
+        y = y * App.scale;
+        w = w * App.scale;
+        h = h * App.scale;
+        pixelSize = parseInt(Math.max(pixelSize * App.scale, 1));
+        // console.log(pixelSize * App.scale)
+    }
 
     let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
     cv.ellipse(mask, new cv.Point(w / 2, h / 2), new cv.Size(w / 2, h / 2), 0, 0, 360, new cv.Scalar(255, 255, 255), -1);
@@ -431,7 +433,7 @@ function applyFilterWithPixelSizeAndFilterType(image, box, pixelIdx, filterType)
 }
 
 function redrawFace() {
-    showLoadingOverlay(false);
+    showLoadingOverlay(false, "load");
     setTimeout(async function () {
         if (App.applyToAllElement.checked) {
             for (let clickArea of document.getElementById("clickMap").children) {
@@ -456,8 +458,10 @@ function applyFilterToOriginalImage() {
 
     for (let i = 0; i < App.boxes.length; i++) {
         const box = App.boxes[i];
-        let roi = image.roi(new cv.Rect(box.bounding[0], box.bounding[1], box.bounding[2], box.bounding[3]));
-        let processedRoi = applyFilterWithPixelSizeAndFilterType(image, box, App.currentSliderValue, App.currentFilterType);
+        let [x, y, w, h] = box.bounding;
+
+        let roi = image.roi(new cv.Rect(x, y, w, h));
+        let processedRoi = applyFilterWithPixelSizeAndFilterType(image, box, App.currentSliderValue, App.currentFilterType, false);
         processedRoi.copyTo(roi);
         roi.delete();
         processedRoi.delete();
@@ -478,15 +482,20 @@ function handleFilterChange(filterType) {
     redrawFace();
 }
 
-function showLoadingOverlay(overlay) {
+function showLoadingOverlay(overlay, method) {
     document.body.classList.add('inactive');
     if (overlay) {
-        App.loadingOverlayElement.style.display = 'block';
+        if (method === "download"){
+            App.downloadingOverlayElement.style.display = 'block';
+        }else {
+            App.loadingOverlayElement.style.display = 'block';
+        }
     }
 }
 
 function hideLoadingOverlay() {
     App.loadingOverlayElement.style.display = 'none';
+    App.downloadingOverlayElement.style.display = 'none';
     setTimeout(() => {
         document.body.classList.remove('inactive');
     }, 100);
