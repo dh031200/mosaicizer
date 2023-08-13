@@ -101,9 +101,16 @@ function handleFileInputChange(e) {
             App.imageUploadContainerElement.style.display = "none";
             App.imageContainerElement.style.border = "none";
 
-            const maxWidth = App.imageContainerElement.clientWidth;
+            const imageAspectRatio = this.width / this.height;
+            const containerAspectRatio = App.imageContainerElement.clientWidth / App.imageContainerElement.clientHeight;
 
-            const scaleFactor = maxWidth / this.width;
+            let scaleFactor;
+            if (imageAspectRatio > containerAspectRatio) {
+                scaleFactor = App.imageContainerElement.clientWidth / this.width;
+            } else {
+                scaleFactor = App.imageContainerElement.clientHeight / this.height;
+            }
+
             const resizedWidth = this.width * scaleFactor;
             const resizedHeight = this.height * scaleFactor;
 
@@ -197,13 +204,6 @@ function handleSaveBtnClick() {
         App.outputElement.height = App.uploadedImageElement.height;
         applyFilterToOriginalImage();
 
-        // App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
-        // App.outputElement.height = App.uploadedImageElement.height;
-        // Draw the image onto the canvas
-        // const ctx = App.outputElement.getContext("2d");
-        // const img = document.getElementById("result");
-        // ctx.drawImage(img, 0, 0, App.uploadedImageElement.width, App.uploadedImageElement.height);
-
         // Save the image
         const link = document.createElement("a");
         link.download = "result.png";
@@ -293,9 +293,6 @@ async function processImage() {
         }); // update boxes to draw later
     }
 
-    // const mat = cv.imread(App.uploadedImageElement); // read from img tag
-    // const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3); // new image matrix
-    // cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR); // RGBA to BGR
     const mat = cv.imread(App.previewCanvasElement); // 원본 이미지 대신 썸네일 이미지로부터 OpenCV Mat 객체 생성
     const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3);
     cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR);
