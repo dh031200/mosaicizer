@@ -7,6 +7,7 @@ const App = {
   scale: null,
   boxes: [],
   isApplied: [],
+  appliedMethod: [],
   scoreThreshold: 0.25,
   currentFace: null,
   currentFilterType: "blur",
@@ -370,6 +371,8 @@ async function processImage() {
           App.preprocessedFaces[App.currentFilterType][App.currentSliderValue][
             i
           ]; // i is the index of the current box
+        App.appliedMethod[i].method = App.currentFilterType;
+        App.appliedMethod[i].pixelIdx = App.currentSliderValue;
         preprocessedRoi.copyTo(roi);
       } else {
         // If it's the filtered region, replace it with the original region
@@ -387,6 +390,7 @@ async function processImage() {
     });
     document.getElementById("clickMap").appendChild(faceArea);
     App.isApplied.push(false);
+    App.appliedMethod.push({method:App.currentFilterType, pixelIdx:App.currentSliderValue});
   }
 
   cv.imshow("preview", mat);
@@ -426,7 +430,6 @@ function applyFilterWithPixelSizeAndFilterType(
     w = w * App.scale;
     h = h * App.scale;
     pixelSize = parseInt(Math.max(pixelSize * App.scale, 1));
-    // console.log(pixelSize * App.scale)
   }
 
   let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
@@ -502,11 +505,12 @@ function applyFilterToOriginalImage() {
       let [x, y, w, h] = box.bounding;
 
       let roi = image.roi(new cv.Rect(x, y, w, h));
+
       let processedRoi = applyFilterWithPixelSizeAndFilterType(
         image,
         box,
-        App.currentSliderValue,
-        App.currentFilterType,
+        App.appliedMethod[i].pixelIdx,
+        App.appliedMethod[i].method,
         false,
       );
       processedRoi.copyTo(roi);
