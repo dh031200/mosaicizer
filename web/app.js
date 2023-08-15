@@ -79,6 +79,9 @@ async function perf() {
   App.imageContainerElement.style.display = "flex";
 
   App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
+  App.updateBtn.addEventListener("click", function () {
+    window.open("https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer", "_blank");
+  })
   App.exitBtn.addEventListener("click", hideModal);
   App.mosaicRadioElement.addEventListener("change", () =>
     handleFilterChange("mosaic"),
