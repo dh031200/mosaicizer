@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:store_redirect/store_redirect.dart';
 
 const Map<String, String> unitID = kReleaseMode
     ? {
@@ -20,7 +22,7 @@ const Map<String, String> unitID = kReleaseMode
         'android': 'ca-app-pub-3940256099942544/6300978111',
       };
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
 
@@ -80,9 +82,28 @@ class MyHomePage extends StatelessWidget {
             child: InAppWebView(
               initialUrlRequest:
                   URLRequest(url: Uri.parse('https://mosaicizer.com/')),
+              onWebViewCreated: (InAppWebViewController controller) async {
+                PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                String buildNumber = packageInfo.buildNumber;
+                controller.evaluateJavascript(source: '''
+                  document.getElementById("appVersion").value = "$buildNumber";
+                ''');
+              },
               onProgressChanged:
                   (InAppWebViewController controller, int progress) {
                 if (progress == 100) {
+                  controller.addJavaScriptHandler(
+                      handlerName: 'exitApp',
+                      callback: (args) {
+                        SystemNavigator.pop();
+                      });
+                  controller.addJavaScriptHandler(
+                      handlerName: 'updateApp',
+                      callback: (args) {
+                        StoreRedirect.redirect(
+                            androidAppId: 'com.twodevteam.mosaicizer',
+                            iOSAppId: 'idxxx');
+                      });
                   controller.addJavaScriptHandler(
                       handlerName: 'fileChooser',
                       callback: (args) {
@@ -102,6 +123,12 @@ class MyHomePage extends StatelessWidget {
                   const dataUrl = resultCanvas.toDataURL();
                   window.flutter_inappwebview.callHandler('saveImage', dataUrl);
                 }, 50);
+              });
+              document.querySelector('#updateBtn').addEventListener('click', function() {
+                window.flutter_inappwebview.callHandler('updateApp');
+              });
+              document.querySelector('#exitBtn').addEventListener('click', function() {
+                window.flutter_inappwebview.callHandler('exitApp');
               });
             ''');
                 }
