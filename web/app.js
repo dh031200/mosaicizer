@@ -108,6 +108,7 @@ async function perf() {
 }
 
 function showModal() {
+  document.getElementById("appVersionLabel").textContent = `App version : ${App.appVersion}`;
   App.modal.style.display = "block";
   App.adContainerElement.style.display = "block";
   App.toolbarElement.style.display = "none";
