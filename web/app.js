@@ -6,6 +6,8 @@ let originalImageHeight;
 let scaleX, scaleY;
 const boxes = []; // Define the 'boxes' variable in a higher scope
 
+let scoreThreshold = 0.25;
+
 async function onOpenCvReady() {
   try {
     inference_session = await ort.InferenceSession.create("yolov8-face.onnx");
@@ -18,7 +20,7 @@ async function onOpenCvReady() {
     new Float32Array([
       100, // topk per class
       0.45, // iou threshold
-      0.25, // score threshold
+      scoreThreshold, // score threshold
     ]),
   ); // nms config tensor
 
@@ -36,6 +38,11 @@ window.onload = async function () {
   const resetBtn = document.getElementById("resetBtn");
   const saveBtn = document.getElementById("saveBtn");
 
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("adContainer").style.display = "flex";
+  document.getElementById("toolbar").style.display = "flex";
+  document.getElementById("imageContainer").style.display = "flex";
+
   document.getElementById("imageUpload").addEventListener("click", function () {
     document.getElementById("hiddenFileInput").click();
   });
@@ -51,6 +58,9 @@ window.onload = async function () {
           originalImageWidth = this.naturalWidth; // Store the original image width
           originalImageHeight = this.naturalHeight; // Store the original image height
 
+          document.getElementById("imageUploadContainer").style.display =
+            "none";
+          document.getElementById("imageContainer").style.border = "none";
           const src = document.getElementById("uploadedImage");
           const dst = document.getElementById("preview");
           src.src = event.target.result;
@@ -83,7 +93,6 @@ window.onload = async function () {
     mapElement.name = "clickMap";
     mapElement.id = "clickMap";
     document.getElementById("imageContainer").appendChild(mapElement);
-
 
     // Show the loading overlay
     document.getElementById("loadingOverlay").style.display = "block";
@@ -241,6 +250,10 @@ window.onload = async function () {
     document.getElementById("uploadedImage").style.display = "none";
     document.getElementById("result").src = "";
     document.getElementById("result").style.display = "none";
+    document.getElementById("imageUploadContainer").style.display =
+      "inline-block";
+
+    document.getElementById("imageContainer").style.border = "3px dashed white";
 
     document.getElementById("clickMap").remove();
     const mapElement = document.createElement("map");
@@ -254,6 +267,9 @@ window.onload = async function () {
     const rCtx = resultCanvas.getContext("2d");
     rCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
     const pCtx = previewCanvas.getContext("2d");
+    previewCanvas.width = 0;
+    previewCanvas.height = 0;
+
     pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
     // Disable the infer, reset, and save buttons
@@ -318,6 +334,11 @@ function applyFilter(image, box) {
   const blurRadio = document.getElementById("blurRadio");
   const pixelSizeInput = document.getElementById("pixelSizeInput");
   let pixelSize = parseInt(pixelSizeInput.value, 10);
+  pixelSize = pixelSize < 5 ? 5 : pixelSize;
+  pixelSize = pixelSize > 90 ? 90 : pixelSize;
+  pixelSizeInput.value = pixelSize.toString();
+
+  console.log(pixelSize);
 
   // Extract the bounding box coordinates
   const [x, y, w, h] = box.bounding;
