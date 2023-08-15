@@ -91,17 +91,17 @@ async function perf() {
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
   App.applyBtnElement.addEventListener("click", handleApplyBtnClick);
   App.resetBtnElement.addEventListener("click", handleResetBtnClick);
-  App.saveBtnElement.addEventListener('click', function () {
+  App.saveBtnElement.addEventListener("click", function () {
     handleSaveBtnClick(false);
   });
 
-  if (App.appVersion.value === ""){
+  if (App.appVersion.value === "") {
     App.appVersion.value = "0";
   }
 
-  setTimeout(function() {
+  setTimeout(function () {
     App.versionCheckBtnElement.click();
-  }, 100)
+  }, 100);
 }
 
 function showModal() {
