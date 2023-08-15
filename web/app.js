@@ -1,5 +1,5 @@
 const App = {
-  latestVersion: 3,
+  latestVersion: 0,
   inference_session: null,
   nms_session: null,
   config: null,
