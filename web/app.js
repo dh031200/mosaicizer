@@ -104,7 +104,7 @@ async function perf() {
 
   setTimeout(function () {
     App.versionCheckBtnElement.click();
-  }, 100);
+  }, 2000);
 }
 
 function showModal() {
