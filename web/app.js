@@ -1,12 +1,50 @@
-let inference_session;
-let nms_session;
-let config;
-let originalImageWidth;
-let originalImageHeight;
-let scaleX, scaleY;
-const boxes = []; // Define the 'boxes' variable in a higher scope
-
-let scoreThreshold = 0.25;
+const App = {
+  latestVersion: 3,
+  inference_session: null,
+  nms_session: null,
+  config: null,
+  originalImageWidth: null,
+  originalImageHeight: null,
+  scale: null,
+  boxes: [],
+  isApplied: [],
+  appliedMethod: [],
+  scoreThreshold: 0.25,
+  currentFace: null,
+  currentFilterType: "blur",
+  currentSliderValue: 3,
+  preprocessedFaces: {
+    mosaic: {},
+    blur: {},
+  },
+  pixelEnum: [10, 20, 40, 65, 95],
+  introElement: document.getElementById("intro"),
+  adContainerElement: document.getElementById("adContainer"),
+  appVersion: document.getElementById("appVersion"),
+  versionCheckBtnElement: document.getElementById("versionBtn"),
+  modal: document.getElementById("myModal"),
+  closeBtn: document.getElementsByClassName("close")[0],
+  updateBtn: document.getElementById("updateBtn"),
+  exitBtn: document.getElementById("exitBtn"),
+  loadingOverlayElement: document.getElementById("loadingOverlay"),
+  downloadingOverlayElement: document.getElementById("downloadingOverlay"),
+  toolbarElement: document.getElementById("toolbar"),
+  imageContainerElement: document.getElementById("imageContainer"),
+  imageUploadContainerElement: document.getElementById("imageUploadContainer"),
+  sliderElement: document.getElementById("pixelSizeSlider"),
+  imageUploadElement: document.getElementById("imageUpload"),
+  hiddenFileInputElement: document.getElementById("hiddenFileInput"),
+  applyBtnElement: document.getElementById("applyBtn"),
+  resetBtnElement: document.getElementById("resetBtn"),
+  saveBtnElement: document.getElementById("saveBtn"),
+  mosaicRadioElement: document.getElementById("mosaicRadio"),
+  blurRadioElement: document.getElementById("blurRadio"),
+  applyToAllElement: document.getElementById("allCheckbox"),
+  uploadedImageElement: document.getElementById("uploadedImage"),
+  previewCanvasElement: document.getElementById("preview"),
+  resultElement: document.getElementById("result"),
+  outputElement: document.getElementById("output"),
+};
 
 async function onOpenCvReady() {
   try {
@@ -38,10 +76,63 @@ window.onload = async function () {
   const resetBtn = document.getElementById("resetBtn");
   const saveBtn = document.getElementById("saveBtn");
 
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("adContainer").style.display = "flex";
-  document.getElementById("toolbar").style.display = "flex";
-  document.getElementById("imageContainer").style.display = "flex";
+  App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
+  App.exitBtn.addEventListener("click", hideModal);
+  App.mosaicRadioElement.addEventListener("change", () =>
+    handleFilterChange("mosaic"),
+  );
+  App.blurRadioElement.addEventListener("change", () =>
+    handleFilterChange("blur"),
+  );
+  App.sliderElement.addEventListener("input", handleSliderInput);
+  App.imageUploadElement.addEventListener("click", handleImageUpload);
+  App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
+  App.applyBtnElement.addEventListener("click", handleApplyBtnClick);
+  App.resetBtnElement.addEventListener("click", handleResetBtnClick);
+  App.saveBtnElement.addEventListener('click', function () {
+    handleSaveBtnClick(false);
+  });
+
+  if (App.appVersion.value === ""){
+    App.appVersion.value = "0";
+  }
+
+  setTimeout(function() {
+    App.versionCheckBtnElement.click();
+  }, 100)
+}
+
+function showModal() {
+  App.modal.style.display = "block";
+  App.adContainerElement.style.display = "block";
+  App.toolbarElement.style.display = "none";
+  App.imageContainerElement.style.display = "none";
+}
+
+function hideModal() {
+  App.modal.style.display = "none";
+}
+
+function appVersionCheck() {
+  if (parseInt(App.appVersion.value) < App.latestVersion) {
+    showModal();
+  }
+}
+
+function handleImageUpload() {
+  App.hiddenFileInputElement.click();
+}
+
+function handleFileInputChange(e) {
+  const file = e.target.files[0];
+  const validExtensions = ["jpg", "jpeg", "png"];
+  const fileExtension = file.name.split(".").pop().toLowerCase();
+
+  if (!validExtensions.includes(fileExtension)) {
+    alert("Invalid file type. Please upload a JPG, JPEG or PNG image.");
+    e.target.value = ""; // Reset the input
+    return;
+  }
 
   document.getElementById("imageUpload").addEventListener("click", function () {
     document.getElementById("hiddenFileInput").click();
@@ -278,23 +369,21 @@ window.onload = async function () {
     saveBtn.disabled = true;
   });
 
-  saveBtn.addEventListener("click", function () {
-    const resultCanvas = document.getElementById("output");
-    const originalImage = document.getElementById("uploadedImage");
-    const originalImageWidth = originalImage.width;
-    const originalImageHeight = originalImage.height;
-    resultCanvas.width = originalImageWidth; // Set the canvas width to the original image width
-    resultCanvas.height = originalImageHeight;
-    // Draw the image onto the canvas
-    const ctx = resultCanvas.getContext("2d");
-    const img = document.getElementById("result");
-    ctx.drawImage(img, 0, 0, originalImageWidth, originalImageHeight);
 
-    // Save the image
-    const link = document.createElement("a");
-    link.download = "result.png";
-    link.href = resultCanvas.toDataURL();
-    link.click();
+function handleSaveBtnClick(isMobile) {
+  showLoadingOverlay(true, "download");
+  setTimeout(async function () {
+    App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
+    App.outputElement.height = App.uploadedImageElement.height;
+    applyFilterToOriginalImage();
+    if (!isMobile) {
+      // Save the image
+      const link = document.createElement("a");
+      link.download = "result.png";
+      link.href = App.outputElement.toDataURL();
+      link.click();
+    }
+    hideLoadingOverlay();
   });
 };
 

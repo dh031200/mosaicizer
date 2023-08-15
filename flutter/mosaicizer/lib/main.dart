@@ -119,7 +119,7 @@ class MyHomePage extends StatelessWidget {
               saveBtn.addEventListener('click', function () {
                 handleSaveBtnClick(true);
                 setTimeout(async function () {
-                  const resultCanvas = document.getElementById('output');                 
+                  const resultCanvas = document.getElementById('output');
                   const dataUrl = resultCanvas.toDataURL();
                   window.flutter_inappwebview.callHandler('saveImage', dataUrl);
                 }, 50);
