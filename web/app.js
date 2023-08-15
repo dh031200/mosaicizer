@@ -1,4 +1,5 @@
 const App = {
+  latestVersion: 3,
   inference_session: null,
   nms_session: null,
   config: null,
@@ -19,6 +20,12 @@ const App = {
   pixelEnum: [10, 20, 40, 65, 95],
   introElement: document.getElementById("intro"),
   adContainerElement: document.getElementById("adContainer"),
+  appVersion: document.getElementById("appVersion"),
+  versionCheckBtnElement: document.getElementById("versionBtn"),
+  modal: document.getElementById("myModal"),
+  closeBtn: document.getElementsByClassName("close")[0],
+  updateBtn: document.getElementById("updateBtn"),
+  exitBtn: document.getElementById("exitBtn"),
   loadingOverlayElement: document.getElementById("loadingOverlay"),
   downloadingOverlayElement: document.getElementById("downloadingOverlay"),
   toolbarElement: document.getElementById("toolbar"),
@@ -71,6 +78,8 @@ async function perf() {
   App.toolbarElement.style.display = "flex";
   App.imageContainerElement.style.display = "flex";
 
+  App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
+  App.exitBtn.addEventListener("click", hideModal);
   App.mosaicRadioElement.addEventListener("change", () =>
     handleFilterChange("mosaic"),
   );
@@ -82,7 +91,34 @@ async function perf() {
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
   App.applyBtnElement.addEventListener("click", handleApplyBtnClick);
   App.resetBtnElement.addEventListener("click", handleResetBtnClick);
-  App.saveBtnElement.addEventListener("click", handleSaveBtnClick);
+  App.saveBtnElement.addEventListener('click', function () {
+    handleSaveBtnClick(false);
+  });
+
+  if (App.appVersion.value === ""){
+    App.appVersion.value = "0";
+  }
+
+  setTimeout(function() {
+    App.versionCheckBtnElement.click();
+  }, 100)
+}
+
+function showModal() {
+  App.modal.style.display = "block";
+  App.adContainerElement.style.display = "block";
+  App.toolbarElement.style.display = "none";
+  App.imageContainerElement.style.display = "none";
+}
+
+function hideModal() {
+  App.modal.style.display = "none";
+}
+
+function appVersionCheck() {
+  if (parseInt(App.appVersion.value) < App.latestVersion) {
+    showModal();
+  }
 }
 
 function handleImageUpload() {
@@ -212,18 +248,19 @@ function handleResetBtnClick() {
   App.saveBtnElement.disabled = true;
 }
 
-function handleSaveBtnClick() {
+function handleSaveBtnClick(isMobile) {
   showLoadingOverlay(true, "download");
   setTimeout(async function () {
     App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
     App.outputElement.height = App.uploadedImageElement.height;
     applyFilterToOriginalImage();
-
-    // Save the image
-    const link = document.createElement("a");
-    link.download = "result.png";
-    link.href = App.outputElement.toDataURL();
-    link.click();
+    if (!isMobile) {
+      // Save the image
+      const link = document.createElement("a");
+      link.download = "result.png";
+      link.href = App.outputElement.toDataURL();
+      link.click();
+    }
     hideLoadingOverlay();
   });
 }

@@ -46,11 +46,29 @@
             height="0" width="0" style="display:none;visibility:hidden"></iframe>
 </noscript>
 <!-- End Google Tag Manager (noscript) -->
+<input type="hidden" id="appVersion" value="">
+<button id="versionBtn" style="display: none;"></button>
 <div id="adContainer">
 </div>
 <div id="intro">
     <img src="./src/intro.png" id="introImage" alt="intro">
 </div>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Update Required</h2>
+        </div>
+        <div class="modal-body">
+            <p>Your app version is outdated.<br>Please update to the latest version.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="updateBtn">Update</button>
+            <button id="exitBtn">Exit</button>
+        </div>
+    </div>
+</div>
+
 <img id="uploadedImage" src="" alt="Uploaded Image">
 <canvas id="output"></canvas>
 <div id="imageContainer">
