@@ -48,33 +48,35 @@ const App = {
 
 async function onOpenCvReady() {
   try {
-    inference_session = await ort.InferenceSession.create("yolov8-face.onnx");
+    App.inference_session = await ort.InferenceSession.create(
+      "yolov8-face.onnx",
+    );
   } catch (error) {
     console.error("Failed to load the model:", error);
   }
 
-  config = new ort.Tensor(
+  App.config = new ort.Tensor(
     "float32",
     new Float32Array([
       100, // topk per class
       0.45, // iou threshold
-      scoreThreshold, // score threshold
+      App.scoreThreshold, // score threshold
     ]),
   ); // nms config tensor
 
   // Load the ONNX model when the page is loaded
   try {
-    nms_session = await ort.InferenceSession.create("nms-yolov8.onnx");
+    App.nms_session = await ort.InferenceSession.create("nms-yolov8.onnx");
   } catch (error) {
     console.error("Failed to load the model:", error);
   }
 }
 
-window.onload = async function () {
-  // Get references to the buttons
-  const applyBtn = document.getElementById("applyBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const saveBtn = document.getElementById("saveBtn");
+async function perf() {
+  App.introElement.style.display = "none";
+  App.adContainerElement.style.display = "block";
+  App.toolbarElement.style.display = "flex";
+  App.imageContainerElement.style.display = "flex";
 
   App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
   App.exitBtn.addEventListener("click", hideModal);
@@ -134,241 +136,117 @@ function handleFileInputChange(e) {
     return;
   }
 
-  document.getElementById("imageUpload").addEventListener("click", function () {
-    document.getElementById("hiddenFileInput").click();
-  });
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = function () {
+      App.uploadedImageElement.src = event.target.result;
 
-  document.getElementById("hiddenFileInput").addEventListener(
-    "change",
-    function (e) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const img = new Image();
-        img.onload = function () {
-          resetBtn.click();
-          originalImageWidth = this.naturalWidth; // Store the original image width
-          originalImageHeight = this.naturalHeight; // Store the original image height
+      App.imageUploadContainerElement.style.display = "none";
+      App.imageContainerElement.style.border = "none";
 
-          document.getElementById("imageUploadContainer").style.display =
-            "none";
-          document.getElementById("imageContainer").style.border = "none";
-          const src = document.getElementById("uploadedImage");
-          const dst = document.getElementById("preview");
-          src.src = event.target.result;
+      const imageAspectRatio = this.width / this.height;
+      const containerAspectRatio =
+        App.imageContainerElement.clientWidth /
+        App.imageContainerElement.clientHeight;
 
-          // Enable the infer and reset buttons when an image is uploaded
-          applyBtn.disabled = false;
-          resetBtn.disabled = false;
+      let scaleFactor;
+      if (imageAspectRatio > containerAspectRatio) {
+        scaleFactor = App.imageContainerElement.clientWidth / this.width;
+      } else {
+        scaleFactor = App.imageContainerElement.clientHeight / this.height;
+      }
 
-          // Show the uploaded image
-          const mat = cv.imread(src);
-          const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3); // new image matrix
-          cv.cvtColor(mat, image, cv.COLOR_RGBA2RGB); // RGBA to BGR
-          cv.imshow("preview", image);
-          dst.style.display = "block";
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    },
-    false,
-  );
+      const resizedWidth = this.width * scaleFactor;
+      const resizedHeight = this.height * scaleFactor;
 
-  applyBtn.addEventListener("click", async function () {
-    const src = document.getElementById("uploadedImage");
-    const dst = document.getElementById("result");
-    const output = document.getElementById("output");
+      App.previewCanvasElement.width = resizedWidth;
+      App.previewCanvasElement.height = resizedHeight;
+      const ctx = App.previewCanvasElement.getContext("2d");
+      ctx.drawImage(img, 0, 0, resizedWidth, resizedHeight);
 
-    document.getElementById("clickMap").remove();
-    const mapElement = document.createElement("map");
-    mapElement.name = "clickMap";
-    mapElement.id = "clickMap";
-    document.getElementById("imageContainer").appendChild(mapElement);
+      App.previewCanvasElement.style.display = "block";
 
-    // Show the loading overlay
-    document.getElementById("loadingOverlay").style.display = "block";
+      // Enable the infer and reset buttons when an image is uploaded
+      App.applyBtnElement.disabled = false;
+      App.resetBtnElement.disabled = false;
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(e.target.files[0]);
+}
 
-    if (inference_session) {
-      setTimeout(async function () {
-        try {
-          // Create an OpenCV Mat from the image
-          const modelInputShape = [1, 3, 640, 640];
-          const [modelWidth, modelHeight] = modelInputShape.slice(2);
-          const [input, xRatio, yRatio] = preprocessing(
-            src,
-            modelWidth,
-            modelHeight,
-          );
+function handleSliderInput() {
+  document.getElementById("pixelSizeValue").textContent = this.value;
+  App.currentSliderValue = parseInt(App.sliderElement.value, 10) - 1;
+  redrawFace();
+}
 
-          const tensor = new ort.Tensor(
-            "float32",
-            input.data32F,
-            modelInputShape,
-          );
-          const { output0 } = await inference_session.run({ images: tensor });
-          const { selected } = await nms_session.run({
-            detection: output0,
-            config: config,
-          });
+async function handleApplyBtnClick() {
+  showLoadingOverlay(true, "load");
 
-          // // Calculate the scale factors
-          const previewImage = document.getElementById("preview");
-          if (previewImage.style.display === "none") {
-            scaleX = dst.clientWidth / originalImageWidth;
-            scaleY = dst.clientHeight / originalImageHeight;
-          } else {
-            scaleX = previewImage.clientWidth / originalImageWidth;
-            scaleY = previewImage.clientHeight / originalImageHeight;
-          }
-
-          // looping through output
-          for (let idx = 0; idx < selected.dims[1]; idx++) {
-            const data = selected.data.slice(
-              idx * selected.dims[2],
-              (idx + 1) * selected.dims[2],
-            ); // get rows
-            const box = data.slice(0, 4);
-            const scores = data.slice(4); // classes probability scores
-            const score = Math.max(...scores); // maximum probability scores
-            const label = scores.indexOf(score); // class id of maximum probability scores
-
-            let [x, y, w, h] = [
-              (box[0] - 0.5 * box[2]) * xRatio, // upscale left
-              (box[1] - 0.5 * box[3]) * yRatio, // upscale top
-              box[2] * xRatio, // upscale width
-              box[3] * yRatio, // upscale height
-            ]; // keep boxes in maxSize range
-
-            boxes.push({
-              label: label,
-              probability: score,
-              bounding: [x, y, w, h], // upscale box
-            }); // update boxes to draw later
-          }
-
-          const mat = cv.imread(src); // read from img tag
-          const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3); // new image matrix
-          cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR); // RGBA to BGR
-
-          let originalImage = image.clone();
-
-          while (boxes.length > 0) {
-            const box = boxes.pop();
-            applyFilter(image, box);
-
-            // Define the bounding box coordinates
-            let x = box.bounding[0];
-            let y = box.bounding[1];
-            let w = box.bounding[2];
-            let h = box.bounding[3];
-
-            // Create a area element for the face
-            let faceArea = document.createElement("area");
-            faceArea.shape = "rect";
-            faceArea.coords = `${x * scaleX},${y * scaleY},${
-              x * scaleX + w * scaleX
-            },${y * scaleY + h * scaleY}`;
-
-            // Define the region of interest in the filtered image
-            let roi = image.roi(new cv.Rect(x, y, w, h));
-
-            // Store the original and filtered regions
-            let originalRegion = originalImage.roi(new cv.Rect(x, y, w, h));
-            let filteredRegion = roi.clone();
-
-            // Add an event listener to the face
-            faceArea.addEventListener("click", function () {
-              // Subtract the original region from the current region
-              let difference = new cv.Mat();
-              cv.subtract(roi, originalRegion, difference);
-
-              // Calculate the norm of the difference
-              let norm = cv.norm(difference, cv.NORM_L1);
-
-              // Check if the current region is the original or the filtered region
-              if (norm === 0) {
-                // If it's the original region, replace it with the filtered region
-                filteredRegion.copyTo(roi);
-              } else {
-                // If it's the filtered region, replace it with the original region
-                originalRegion.copyTo(roi);
-              }
-
-              const rgbMat = new cv.Mat();
-              cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
-              cv.imshow("output", rgbMat);
-
-              dst.src = output.toDataURL();
-
-              // Clean up
-              difference.delete();
-            });
-            document.getElementById("clickMap").appendChild(faceArea);
-          }
-
-          const imgWithAlpha = new cv.Mat();
-          cv.cvtColor(image, imgWithAlpha, cv.COLOR_BGR2RGBA);
-
-          cv.imshow("output", imgWithAlpha);
-          dst.src = output.toDataURL();
-
-          dst.style.display = "block";
-
-          // Hide the loading overlay
-          document.getElementById("loadingOverlay").style.display = "none";
-
-          // Enable the save button when the inference is done
-          saveBtn.disabled = false;
-
-          // Hide the uploaded image
-          document.getElementById("preview").style.display = "none";
-
-          // Clean up
-          input.delete(); // delete unused Mat
-        } catch (error) {
-          console.error("Failed to run the model:", error);
-        }
-      }, 0);
+  setTimeout(async function () {
+    if (App.inference_session) {
+      try {
+        await processImage();
+      } catch (error) {
+        console.error("Failed to run the model:", error);
+      }
     } else {
       console.error("The model is not loaded yet.");
     }
-  });
+  }, 10);
+}
 
-  resetBtn.addEventListener("click", function () {
-    // Clear the uploaded image
-    document.getElementById("hiddenFileInput").value = "";
-    document.getElementById("uploadedImage").src = "";
-    document.getElementById("uploadedImage").style.display = "none";
-    document.getElementById("result").src = "";
-    document.getElementById("result").style.display = "none";
-    document.getElementById("imageUploadContainer").style.display =
-      "inline-block";
+function handleResetBtnClick() {
+  App.currentFace = null;
+  App.currentSliderValue = 3;
+  App.preprocessedFaces = {
+    mosaic: {},
+    blur: {},
+  };
 
-    document.getElementById("imageContainer").style.border = "3px dashed white";
+  App.applyToAllElement.checked = true;
 
-    document.getElementById("clickMap").remove();
-    const mapElement = document.createElement("map");
-    mapElement.name = "clickMap";
-    mapElement.id = "clickMap";
-    document.getElementById("imageContainer").appendChild(mapElement);
+  // Clear the uploaded image
+  App.hiddenFileInputElement.value = "";
+  App.uploadedImageElement.src = "";
+  App.uploadedImageElement.style.display = "none";
+  App.resultElement.src = "";
+  App.resultElement.style.display = "none";
+  App.sliderElement.disabled = true;
+  App.sliderElement.value = 3;
+  document.getElementById("pixelSizeValue").textContent = "3";
+  App.boxes = [];
 
-    // Clear the result image
-    const resultCanvas = document.getElementById("output");
-    const previewCanvas = document.getElementById("preview");
-    const rCtx = resultCanvas.getContext("2d");
-    rCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
-    const pCtx = previewCanvas.getContext("2d");
-    previewCanvas.width = 0;
-    previewCanvas.height = 0;
+  App.imageUploadContainerElement.style.display = "block";
+  App.imageContainerElement.style.border = "3px dashed white";
 
-    pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  document.getElementById("clickMap").remove();
+  const mapElement = document.createElement("map");
+  mapElement.name = "clickMap";
+  mapElement.id = "clickMap";
+  App.imageContainerElement.appendChild(mapElement);
 
-    // Disable the infer, reset, and save buttons
-    applyBtn.disabled = true;
-    resetBtn.disabled = true;
-    saveBtn.disabled = true;
-  });
+  // Clear the result image
+  const rCtx = App.outputElement.getContext("2d");
+  rCtx.clearRect(0, 0, App.outputElement.width, App.outputElement.height);
+  const pCtx = App.previewCanvasElement.getContext("2d");
+  App.previewCanvasElement.width = 0;
+  App.previewCanvasElement.height = 0;
 
+  pCtx.clearRect(
+    0,
+    0,
+    App.previewCanvasElement.width,
+    App.previewCanvasElement.height,
+  );
+
+  // Disable the infer, reset, and save buttons
+  App.applyBtnElement.disabled = true;
+  App.resetBtnElement.disabled = true;
+  App.saveBtnElement.disabled = true;
+}
 
 function handleSaveBtnClick(isMobile) {
   showLoadingOverlay(true, "download");
@@ -385,7 +263,7 @@ function handleSaveBtnClick(isMobile) {
     }
     hideLoadingOverlay();
   });
-};
+}
 
 const preprocessing = (source, modelWidth, modelHeight) => {
   const mat = cv.imread(source); // read from img tag
@@ -418,24 +296,183 @@ const preprocessing = (source, modelWidth, modelHeight) => {
   return [input, xRatio, yRatio];
 };
 
-function applyFilter(image, box) {
-  const mosaicRadio = document.getElementById("mosaicRadio");
-  const blurRadio = document.getElementById("blurRadio");
-  const pixelSizeInput = document.getElementById("pixelSizeInput");
-  let pixelSize = parseInt(pixelSizeInput.value, 10);
-  pixelSize = pixelSize < 5 ? 5 : pixelSize;
-  pixelSize = pixelSize > 90 ? 90 : pixelSize;
-  pixelSizeInput.value = pixelSize.toString();
+async function processImage() {
+  // Create an OpenCV Mat from the image
+  const modelInputShape = [1, 3, 640, 640];
+  const [modelWidth, modelHeight] = modelInputShape.slice(2);
+  const [input, xRatio, yRatio] = preprocessing(
+    App.uploadedImageElement,
+    modelWidth,
+    modelHeight,
+  );
 
-  console.log(pixelSize);
+  const tensor = new ort.Tensor("float32", input.data32F, modelInputShape);
+  const { output0 } = await App.inference_session.run({ images: tensor });
+  const { selected } = await App.nms_session.run({
+    detection: output0,
+    config: App.config,
+  });
 
-  // Extract the bounding box coordinates
-  const [x, y, w, h] = box.bounding;
+  // Calculate the scale factors
+  App.scale =
+    App.previewCanvasElement.width / App.uploadedImageElement.naturalWidth;
 
-  // Create an empty mask the same size as the region of interest
+  // looping through output
+  for (let idx = 0; idx < selected.dims[1]; idx++) {
+    const data = selected.data.slice(
+      idx * selected.dims[2],
+      (idx + 1) * selected.dims[2],
+    ); // get rows
+    const box = data.slice(0, 4);
+    const scores = data.slice(4); // classes probability scores
+    const score = Math.max(...scores); // maximum probability scores
+    const label = scores.indexOf(score); // class id of maximum probability scores
+
+    let [x, y, w, h] = [
+      (box[0] - 0.5 * box[2]) * xRatio, // upscale left
+      (box[1] - 0.5 * box[3]) * yRatio, // upscale top
+      box[2] * xRatio, // upscale width
+      box[3] * yRatio, // upscale height
+    ]; // keep boxes in maxSize range
+
+    App.boxes.push({
+      label: label,
+      probability: score,
+      bounding: [x, y, w, h], // upscale box
+    }); // update boxes to draw later
+  }
+
+  const mat = cv.imread(App.previewCanvasElement); // 원본 이미지 대신 썸네일 이미지로부터 OpenCV Mat 객체 생성
+  const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3);
+  cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR);
+
+  for (let filterType of ["mosaic", "blur"]) {
+    for (let pixelIdx = 0; pixelIdx < 5; pixelIdx++) {
+      let processedImage = image.clone();
+      for (let i = 0; i < App.boxes.length; i++) {
+        const box = App.boxes[i];
+        let processedRoi = applyFilterWithPixelSizeAndFilterType(
+          processedImage,
+          box,
+          pixelIdx,
+          filterType,
+          true,
+        );
+        if (!App.preprocessedFaces[filterType][pixelIdx]) {
+          App.preprocessedFaces[filterType][pixelIdx] = [];
+        }
+        App.preprocessedFaces[filterType][pixelIdx].push(processedRoi);
+      }
+      processedImage.delete();
+    }
+  }
+
+  for (let i = 0; i < App.boxes.length; i++) {
+    let originalImage = image.clone();
+
+    const box = App.boxes[i];
+
+    // Define the bounding box coordinates
+    let x = box.bounding[0] * App.scale;
+    let y = box.bounding[1] * App.scale;
+    let w = box.bounding[2] * App.scale;
+    let h = box.bounding[3] * App.scale;
+
+    // Store the original and filtered regions
+    // Create an area element for the face
+    let faceArea = document.createElement("area");
+    faceArea.shape = "rect";
+    faceArea.coords = `${x},${y},${x + w},${y + h}`;
+
+    let roi = image.roi(new cv.Rect(x, y, w, h));
+
+    let originalRegion = originalImage.roi(new cv.Rect(x, y, w, h));
+    // Define the region of interest in the filtered image
+
+    // Add an event listener to the face
+    faceArea.addEventListener("click", function () {
+      if (!App.applyToAllElement.checked) {
+        App.currentFace = this;
+      }
+      App.isApplied[i] = !App.isApplied[i];
+      // Subtract the original region from the current region
+      let difference = new cv.Mat();
+      cv.subtract(roi, originalRegion, difference);
+      // Calculate the norm of the difference
+      let norm = cv.norm(difference, cv.NORM_L1);
+
+      // Check if the current region is the original or the filtered region
+      if (norm === 0) {
+        // If it's the original region, get the preprocessed image from preprocessedFaces
+        let preprocessedRoi =
+          App.preprocessedFaces[App.currentFilterType][App.currentSliderValue][
+            i
+          ]; // i is the index of the current box
+        App.appliedMethod[i].method = App.currentFilterType;
+        App.appliedMethod[i].pixelIdx = App.currentSliderValue;
+        preprocessedRoi.copyTo(roi);
+      } else {
+        // If it's the filtered region, replace it with the original region
+        originalRegion.copyTo(roi);
+      }
+
+      const rgbMat = new cv.Mat();
+      cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
+      cv.imshow("preview", rgbMat);
+
+      App.resultElement.src = App.previewCanvasElement.toDataURL();
+
+      // Clean up
+      difference.delete();
+    });
+    document.getElementById("clickMap").appendChild(faceArea);
+    App.isApplied.push(false);
+    App.appliedMethod.push({
+      method: App.currentFilterType,
+      pixelIdx: App.currentSliderValue,
+    });
+  }
+
+  cv.imshow("preview", mat);
+  App.resultElement.src = App.previewCanvasElement.toDataURL();
+
+  App.resultElement.style.display = "block";
+
+  for (let clickArea of document.getElementById("clickMap").children) {
+    clickArea.click();
+  }
+
+  // Hide the loading overlay
+  hideLoadingOverlay();
+
+  // Enable the save button when the inference is done
+  App.saveBtnElement.disabled = false;
+
+  // Hide the uploaded image
+  App.previewCanvasElement.style.display = "none";
+
+  App.sliderElement.disabled = false;
+  App.applyBtnElement.disabled = true;
+}
+
+function applyFilterWithPixelSizeAndFilterType(
+  image,
+  box,
+  pixelIdx,
+  filterType,
+  thumbnail,
+) {
+  let pixelSize = App.pixelEnum[pixelIdx];
+  let [x, y, w, h] = box.bounding;
+  if (thumbnail) {
+    x = x * App.scale;
+    y = y * App.scale;
+    w = w * App.scale;
+    h = h * App.scale;
+    pixelSize = parseInt(Math.max(pixelSize * App.scale, 1));
+  }
+
   let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
-
-  // Draw an ellipse on the mask the same size as the region of interest
   cv.ellipse(
     mask,
     new cv.Point(w / 2, h / 2),
@@ -446,15 +483,10 @@ function applyFilter(image, box) {
     new cv.Scalar(255, 255, 255),
     -1,
   );
-
-  // Extract the region of interest (ROI) from the image
   let roi = image.roi(new cv.Rect(x, y, w, h));
-
-  // Clone the ROI to create an image to which the mask will be applied
   let roiClone = roi.clone();
 
-  if (mosaicRadio.checked) {
-    // Resize the ROI to a smaller size to cause pixelation
+  if (filterType === "mosaic") {
     let pixelated = new cv.Mat();
     cv.resize(
       roiClone,
@@ -464,34 +496,113 @@ function applyFilter(image, box) {
       0,
       cv.INTER_LINEAR,
     );
-
-    // Resize the pixelated ROI back to the original size
     cv.resize(pixelated, pixelated, new cv.Size(w, h), 0, 0, cv.INTER_NEAREST);
-
-    // Copy the pixelated image to the ROI in the cloned image using the mask
     pixelated.copyTo(roiClone, mask);
-
     pixelated.delete();
-  } else if (blurRadio.checked) {
-    // Create a blurred image
+  } else if (filterType === "blur") {
     let blurred = new cv.Mat();
-    pixelSize = pixelSize * 4;
-    pixelSize = pixelSize % 2 === 0 ? pixelSize + 1 : pixelSize; // Ensure pixelSize is odd
-
+    pixelSize = pixelSize * 3;
+    pixelSize = pixelSize % 2 === 0 ? pixelSize + 1 : pixelSize;
     let ksize = new cv.Size(pixelSize, pixelSize);
     cv.GaussianBlur(roiClone, blurred, ksize, 0, 0, cv.BORDER_DEFAULT);
-
-    // Copy the blurred image to the ROI in the cloned image using the mask
     blurred.copyTo(roiClone, mask);
-
     blurred.delete();
   }
 
-  // Replace the ROI in the original image with the pixelated or blurred ROI
   roiClone.copyTo(roi);
-
-  // Clean up
   roi.delete();
-  roiClone.delete();
   mask.delete();
+  return roiClone;
 }
+
+function redrawFace() {
+  showLoadingOverlay(false, "load");
+  setTimeout(async function () {
+    if (App.applyToAllElement.checked) {
+      for (let clickArea of document.getElementById("clickMap").children) {
+        clickArea.click();
+        clickArea.click();
+      }
+    } else {
+      if (App.currentFace) {
+        App.currentFace.click();
+        App.currentFace.click();
+      }
+    }
+    // Hide the loading overlay and unblock clicks
+    hideLoadingOverlay();
+  }, 2);
+}
+
+function applyFilterToOriginalImage() {
+  const mat = cv.imread(App.uploadedImageElement); // 원본 이미지로부터 OpenCV Mat 객체 생성
+  const image = new cv.Mat(mat.rows, mat.cols, cv.CV_8UC3);
+  cv.cvtColor(mat, image, cv.COLOR_RGBA2BGR);
+
+  for (let i = 0; i < App.boxes.length; i++) {
+    if (App.isApplied[i]) {
+      const box = App.boxes[i];
+      let [x, y, w, h] = box.bounding;
+
+      let roi = image.roi(new cv.Rect(x, y, w, h));
+
+      let processedRoi = applyFilterWithPixelSizeAndFilterType(
+        image,
+        box,
+        App.appliedMethod[i].pixelIdx,
+        App.appliedMethod[i].method,
+        false,
+      );
+      processedRoi.copyTo(roi);
+      roi.delete();
+      processedRoi.delete();
+    }
+  }
+
+  const rgbMat = new cv.Mat();
+  cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
+  cv.imshow("output", rgbMat);
+
+  mat.delete();
+  image.delete();
+  rgbMat.delete();
+}
+
+function handleFilterChange(filterType) {
+  App.currentFilterType = filterType;
+  redrawFace();
+}
+
+function showLoadingOverlay(overlay, method) {
+  document.body.classList.add("inactive");
+  if (overlay) {
+    if (method === "download") {
+      App.downloadingOverlayElement.style.display = "block";
+    } else {
+      App.loadingOverlayElement.style.display = "block";
+    }
+  }
+}
+
+function hideLoadingOverlay() {
+  App.loadingOverlayElement.style.display = "none";
+  App.downloadingOverlayElement.style.display = "none";
+  setTimeout(() => {
+    document.body.classList.remove("inactive");
+  }, 100);
+}
+
+async function main() {
+  if (cv instanceof Promise) {
+    cv = await cv;
+    await perf();
+  } else {
+    cv.onRuntimeInitialized = perf;
+  }
+  await onOpenCvReady();
+}
+
+let pathsConfig = {
+  wasm: "./build_wasm/opencv.js",
+};
+loadOpenCV(pathsConfig, main);
