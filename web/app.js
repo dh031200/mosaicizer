@@ -1,4 +1,6 @@
 const App = {
+  isMobile: false,
+  downloadLink: null,
   latestVersion: 0,
   inference_session: null,
   nms_session: null,
@@ -79,9 +81,7 @@ async function perf() {
   App.imageContainerElement.style.display = "flex";
 
   App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
-  App.updateBtn.addEventListener("click", function () {
-    window.open("https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer", "_blank");
-  })
+  App.updateBtn.addEventListener("click", updateBtnEventHandler);
   App.exitBtn.addEventListener("click", hideModal);
   App.mosaicRadioElement.addEventListener("change", () =>
     handleFilterChange("mosaic"),
@@ -94,9 +94,7 @@ async function perf() {
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
   App.applyBtnElement.addEventListener("click", handleApplyBtnClick);
   App.resetBtnElement.addEventListener("click", handleResetBtnClick);
-  App.saveBtnElement.addEventListener("click", function () {
-    handleSaveBtnClick(false);
-  });
+  App.saveBtnElement.addEventListener("click", handleSaveBtnClick);
 
   if (App.appVersion.value === "") {
     App.appVersion.value = "0";
@@ -105,6 +103,17 @@ async function perf() {
   setTimeout(function () {
     App.versionCheckBtnElement.click();
   }, 2000);
+}
+
+function removeEventListeners() {
+  App.saveBtnElement.removeEventListener("click", handleSaveBtnClick);
+  App.updateBtn.removeEventListener("click", updateBtnEventHandler);
+  App.exitBtn.removeEventListener("click", hideModal);
+}
+
+
+function updateBtnEventHandler() {
+  window.open("https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer", "_blank");
 }
 
 function showModal() {
@@ -252,21 +261,21 @@ function handleResetBtnClick() {
   App.saveBtnElement.disabled = true;
 }
 
-function handleSaveBtnClick(isMobile) {
+async function handleSaveBtnClick() {
   showLoadingOverlay(true, "download");
   setTimeout(async function () {
     App.outputElement.width = App.uploadedImageElement.width; // Set the canvas width to the original image width
     App.outputElement.height = App.uploadedImageElement.height;
     applyFilterToOriginalImage();
-    if (!isMobile) {
-      // Save the image
-      const link = document.createElement("a");
-      link.download = "result.png";
-      link.href = App.outputElement.toDataURL();
+    const link = document.createElement("a");
+    link.download = "result.png";
+    link.href = App.outputElement.toDataURL();
+    App.downloadLink = link.href;
+    if (!App.isMobile) {
       link.click();
+      hideLoadingOverlay();
     }
-    hideLoadingOverlay();
-  });
+  }, 100);
 }
 
 const preprocessing = (source, modelWidth, modelHeight) => {
@@ -439,7 +448,6 @@ async function processImage() {
 
   cv.imshow("preview", mat);
   App.resultElement.src = App.previewCanvasElement.toDataURL();
-
   App.resultElement.style.display = "block";
 
   for (let clickArea of document.getElementById("clickMap").children) {
