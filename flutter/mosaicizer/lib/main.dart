@@ -4,12 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:path/path.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info/package_info.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -88,8 +86,7 @@ class MyHomePage extends StatelessWidget {
               Expanded(
                 child: InAppWebView(
                   initialUrlRequest:
-                  // URLRequest(url: Uri.parse('https://mosaicizer.com/')),
-                  URLRequest(url: Uri.parse('http://192.168.0.51:8000')),
+                  URLRequest(url: Uri.parse('https://mosaicizer.com/')),
                   onWebViewCreated: (InAppWebViewController controller) async {
                     PackageInfo packageInfo = await PackageInfo.fromPlatform();
                     String buildNumber = packageInfo.buildNumber;
