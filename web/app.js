@@ -111,13 +111,17 @@ function removeEventListeners() {
   App.exitBtn.removeEventListener("click", hideModal);
 }
 
-
 function updateBtnEventHandler() {
-  window.open("https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer", "_blank");
+  window.open(
+    "https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer",
+    "_blank",
+  );
 }
 
 function showModal() {
-  document.getElementById("appVersionLabel").textContent = `App version : ${App.appVersion.value}`;
+  document.getElementById(
+    "appVersionLabel",
+  ).textContent = `App version : ${App.appVersion.value}`;
   App.modal.style.display = "block";
   App.adContainerElement.style.display = "block";
   App.toolbarElement.style.display = "none";
