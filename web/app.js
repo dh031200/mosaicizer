@@ -1,7 +1,7 @@
 const App = {
   isMobile: false,
   downloadLink: null,
-  latestVersion: 5,
+  latestVersion: 7,
   inference_session: null,
   nms_session: null,
   config: null,
