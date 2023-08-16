@@ -133,7 +133,8 @@ function hideModal() {
 }
 
 function appVersionCheck() {
-  if (parseInt(App.appVersion.value) < App.latestVersion) {
+  if (App.isMobile && parseInt(App.appVersion.value) < App.latestVersion) {
+    removeEventListeners();
     showModal();
   }
 }
@@ -212,7 +213,7 @@ async function handleApplyBtnClick() {
     } else {
       console.error("The model is not loaded yet.");
     }
-  }, 10);
+  }, 50);
 }
 
 function handleResetBtnClick() {
@@ -547,7 +548,7 @@ function redrawFace() {
     }
     // Hide the loading overlay and unblock clicks
     hideLoadingOverlay();
-  }, 2);
+  }, 50);
 }
 
 function applyFilterToOriginalImage() {

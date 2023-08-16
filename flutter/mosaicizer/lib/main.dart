@@ -15,13 +15,13 @@ import 'package:store_redirect/store_redirect.dart';
 
 const Map<String, String> unitID = kReleaseMode
     ? {
-  'ios': 'ca-app-pub-1117721907680627/1986116731',
-  'android': 'ca-app-pub-1117721907680627/1986116731',
-}
+        'ios': 'ca-app-pub-1117721907680627/1986116731',
+        'android': 'ca-app-pub-1117721907680627/1986116731',
+      }
     : {
-  'ios': 'ca-app-pub-3940256099942544/2934735716',
-  'android': 'ca-app-pub-3940256099942544/6300978111',
-};
+        'ios': 'ca-app-pub-3940256099942544/2934735716',
+        'android': 'ca-app-pub-3940256099942544/6300978111',
+      };
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,9 +49,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isEventListenersRemoved = false;
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-    TargetPlatform os = Theme
-        .of(context)
-        .platform;
+    TargetPlatform os = Theme.of(context).platform;
     BannerAd banner = BannerAd(
       listener: BannerAdListener(
         onAdFailedToLoad: (Ad ad, LoadAdError error) {
@@ -68,61 +66,57 @@ class MyHomePage extends StatelessWidget {
       size: AdSize.banner,
       adUnitId: unitID[os == TargetPlatform.iOS ? 'ios' : 'android']!,
       request: const AdRequest(),
-    )
-      ..load();
+    )..load();
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
           child: Column(
-            children: [
-              SizedBox(
-                // color: Colors.black,
-                height: 60,
-                child: AdWidget(
-                  ad: banner,
-                ),
-              ),
-              Expanded(
-                child: InAppWebView(
-                  initialUrlRequest:
+        children: [
+          SizedBox(
+            // color: Colors.black,
+            height: 60,
+            child: AdWidget(
+              ad: banner,
+            ),
+          ),
+          Expanded(
+            child: InAppWebView(
+              initialUrlRequest:
                   URLRequest(url: Uri.parse('https://mosaicizer.com/')),
-                  onWebViewCreated: (InAppWebViewController controller) async {
-                    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-                    String buildNumber = packageInfo.buildNumber;
-                    controller.evaluateJavascript(source: '''
+              onProgressChanged:
+                  (InAppWebViewController controller, int progress) async {
+                if (progress == 100 && !isEventListenersRemoved) {
+                  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                  String buildNumber = packageInfo.buildNumber;
+                  controller.evaluateJavascript(source: '''
+                  App.isMobile = true;
                   document.getElementById("appVersion").value = "$buildNumber";
                 ''');
-                  },
-                  onProgressChanged:
-                      (InAppWebViewController controller, int progress) {
-                    if (progress == 100 && !isEventListenersRemoved) {
-                      isEventListenersRemoved = true;
-                      controller.addJavaScriptHandler(
-                          handlerName: 'exitApp',
-                          callback: (args) {
-                            SystemNavigator.pop();
-                          });
-                      controller.addJavaScriptHandler(
-                          handlerName: 'updateApp',
-                          callback: (args) {
-                            StoreRedirect.redirect(
-                                androidAppId: 'com.twodevteam.mosaicizer',
-                                iOSAppId: 'idxxx');
-                          });
-                      controller.addJavaScriptHandler(
-                          handlerName: 'fileChooser',
-                          callback: (args) {
-                            _getImage(controller);
-                          });
-                      controller.addJavaScriptHandler(
-                          handlerName: 'saveImage',
-                          callback: (args) {
-                            _saveImage(args.first);
-                          });
-                      controller.evaluateJavascript(source: '''
-                    removeEventListeners();
-                    App.isMobile = true;
+                  isEventListenersRemoved = true;
+                  controller.addJavaScriptHandler(
+                      handlerName: 'exitApp',
+                      callback: (args) {
+                        SystemNavigator.pop();
+                      });
+                  controller.addJavaScriptHandler(
+                      handlerName: 'updateApp',
+                      callback: (args) {
+                        StoreRedirect.redirect(
+                            androidAppId: 'com.twodevteam.mosaicizer',
+                            iOSAppId: 'idxxx');
+                      });
+                  controller.addJavaScriptHandler(
+                      handlerName: 'fileChooser',
+                      callback: (args) {
+                        _getImage(controller);
+                      });
+                  controller.addJavaScriptHandler(
+                      handlerName: 'saveImage',
+                      callback: (args) {
+                        _saveImage(args.first);
+                      });
+                  controller.evaluateJavascript(source: '''
                     App.saveBtnElement.addEventListener("click", async function () {
                       await handleSaveBtnClick();
                       setTimeout(async function () {
@@ -137,29 +131,28 @@ class MyHomePage extends StatelessWidget {
                       window.flutter_inappwebview.callHandler("exitApp");
                     });
                 ''');
-                    }
-                  },
-                  onLoadResource:
-                      (InAppWebViewController controller,
-                      LoadedResource resource) {
-                    controller.evaluateJavascript(source: '''
+                }
+              },
+              onLoadResource:
+                  (InAppWebViewController controller, LoadedResource resource) {
+                controller.evaluateJavascript(source: '''
             var meta = document.createElement('meta');
             meta.setAttribute('name', 'viewport');
             meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0');
             document.getElementsByTagName('head')[0].appendChild(meta);
           ''');
-                  },
-                ),
-              )
-            ],
-          )),
+              },
+            ),
+          )
+        ],
+      )),
     );
   }
 
   void _getImage(InAppWebViewController controller) async {
     final ImagePicker picker = ImagePicker();
     final XFile? imageFile =
-    await picker.pickImage(source: ImageSource.gallery);
+        await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       final Uint8List bytes = await imageFile.readAsBytes();
       final String base64 = base64Encode(bytes);
