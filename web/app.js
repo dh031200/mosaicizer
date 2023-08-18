@@ -20,6 +20,7 @@ const App = {
     blur: {},
   },
   pixelEnum: [10, 20, 40, 65, 95],
+  borderStyle: null,
   introElement: document.getElementById("intro"),
   adContainerElement: document.getElementById("adContainer"),
   appVersion: document.getElementById("appVersion"),
@@ -39,8 +40,8 @@ const App = {
   applyBtnElement: document.getElementById("applyBtn"),
   resetBtnElement: document.getElementById("resetBtn"),
   saveBtnElement: document.getElementById("saveBtn"),
-  mosaicRadioElement: document.getElementById("mosaicRadio"),
-  blurRadioElement: document.getElementById("blurRadio"),
+  mosaicBtnElement: document.getElementById("mosaicBtn"),
+  blurBtnElement: document.getElementById("blurBtn"),
   applyToAllElement: document.getElementById("allCheckbox"),
   uploadedImageElement: document.getElementById("uploadedImage"),
   previewCanvasElement: document.getElementById("preview"),
@@ -79,16 +80,14 @@ async function perf() {
   App.adContainerElement.style.display = "block";
   App.toolbarElement.style.display = "flex";
   App.imageContainerElement.style.display = "flex";
+  App.borderStyle = App.imageContainerElement.style.border;
 
   App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
   App.updateBtn.addEventListener("click", updateBtnEventHandler);
   App.exitBtn.addEventListener("click", hideModal);
-  App.mosaicRadioElement.addEventListener("change", () =>
-    handleFilterChange("mosaic"),
-  );
-  App.blurRadioElement.addEventListener("change", () =>
-    handleFilterChange("blur"),
-  );
+  App.mosaicBtnElement.addEventListener("click", () => handleFilterChange("mosaic"));
+  App.blurBtnElement.addEventListener("click", () => handleFilterChange("blur"));
+
   App.sliderElement.addEventListener("input", handleSliderInput);
   App.imageUploadElement.addEventListener("click", handleImageUpload);
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
@@ -186,8 +185,8 @@ function handleFileInputChange(e) {
       App.previewCanvasElement.style.display = "block";
 
       // Enable the infer and reset buttons when an image is uploaded
-      App.applyBtnElement.disabled = false;
-      App.resetBtnElement.disabled = false;
+      App.applyBtnElement.classList.remove("toolbarBtnDisabled");
+      App.resetBtnElement.classList.remove("toolbarBtnDisabled");
     };
     img.src = event.target.result;
   };
@@ -237,8 +236,8 @@ function handleResetBtnClick() {
   document.getElementById("pixelSizeValue").textContent = "3";
   App.boxes = [];
 
-  App.imageUploadContainerElement.style.display = "block";
-  App.imageContainerElement.style.border = "3px dashed white";
+  App.imageUploadContainerElement.style.display = "flex";
+  App.imageContainerElement.style.border = App.borderStyle;
 
   document.getElementById("clickMap").remove();
   const mapElement = document.createElement("map");
@@ -261,9 +260,9 @@ function handleResetBtnClick() {
   );
 
   // Disable the infer, reset, and save buttons
-  App.applyBtnElement.disabled = true;
-  App.resetBtnElement.disabled = true;
-  App.saveBtnElement.disabled = true;
+  App.applyBtnElement.classList.add("toolbarBtnDisabled");
+  App.resetBtnElement.classList.add("toolbarBtnDisabled");
+  App.saveBtnElement.classList.add("toolbarBtnDisabled");
 }
 
 async function handleSaveBtnClick() {
@@ -347,11 +346,14 @@ async function processImage() {
     const label = scores.indexOf(score); // class id of maximum probability scores
 
     let [x, y, w, h] = [
-      (box[0] - 0.5 * box[2]) * xRatio, // upscale left
-      (box[1] - 0.5 * box[3]) * yRatio, // upscale top
-      box[2] * xRatio, // upscale width
-      box[3] * yRatio, // upscale height
+      Math.max(0, (box[0] - 0.5 * box[2]) * xRatio), // upscale left
+      Math.max(0, (box[1] - 0.5 * box[3]) * yRatio), // upscale top
+      Math.max(0, box[2] * xRatio), // upscale width
+      Math.max(0, box[3] * yRatio), // upscale height
     ]; // keep boxes in maxSize range
+
+    w -= Math.max(0, x+w - App.uploadedImageElement.naturalWidth);
+    h -= Math.max(0, y+h - App.uploadedImageElement.naturalHeight);
 
     App.boxes.push({
       label: label,
@@ -462,14 +464,14 @@ async function processImage() {
   // Hide the loading overlay
   hideLoadingOverlay();
 
-  // Enable the save button when the inference is done
-  App.saveBtnElement.disabled = false;
-
   // Hide the uploaded image
   App.previewCanvasElement.style.display = "none";
 
   App.sliderElement.disabled = false;
-  App.applyBtnElement.disabled = true;
+
+  // Enable the save button when the inference is done
+  App.applyBtnElement.classList.add("toolbarBtnDisabled");
+  App.saveBtnElement.classList.remove("toolbarBtnDisabled");
 }
 
 function applyFilterWithPixelSizeAndFilterType(
@@ -488,7 +490,6 @@ function applyFilterWithPixelSizeAndFilterType(
     h = h * App.scale;
     pixelSize = parseInt(Math.max(pixelSize * App.scale, 1));
   }
-
   let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
   cv.ellipse(
     mask,
@@ -502,7 +503,6 @@ function applyFilterWithPixelSizeAndFilterType(
   );
   let roi = image.roi(new cv.Rect(x, y, w, h));
   let roiClone = roi.clone();
-
   if (filterType === "mosaic") {
     let pixelated = new cv.Mat();
     cv.resize(
@@ -586,6 +586,13 @@ function applyFilterToOriginalImage() {
 }
 
 function handleFilterChange(filterType) {
+  if (filterType==="blur"){
+    App.blurBtnElement.disabled = true;
+    App.mosaicBtnElement.disabled = false;
+  } else{
+    App.blurBtnElement.disabled = false;
+    App.mosaicBtnElement.disabled = true;
+  }
   App.currentFilterType = filterType;
   redrawFace();
 }

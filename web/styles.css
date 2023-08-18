@@ -6,13 +6,19 @@ html {
   text-size-adjust: none;
 }
 
+@font-face {
+  font-family: 'Pretendard-Medium';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Medium.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
 body {
-  background: black;
-  font-family: Arial, sans-serif;
+  font-family: 'Pretendard-Medium', serif;
+  font-weight: bold;
   padding: 1rem 1rem;
   text-align: center;
   align-items: center;
-  color: white;
 }
 
 #appVersion {
@@ -76,12 +82,78 @@ input[type="number"] {
   left: 0;
   right: 0;
   width: 100%;
-  height: 15vh;
-  background-color: #000000;
+  height: 25vh;
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
   margin: 1rem auto 1rem auto;
+}
+
+#methodContainer {
+  display: flex;
+  height: 5vh;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.methodBtn {
+  font-weight: bold;
+  font-family: 'Pretendard-Medium', serif;
+  border: none;
+  width:30vw;
+  height:4vh;
+  margin-bottom: 1rem;
+}
+
+.methodBtn:disabled {
+  color: #1e1e1e;
+  border: none;
+  background-color: #b4b4b4;
+}
+
+#blurBtn {
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+#mosaicBtn {
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.svgBtn:disabled {
+  opacity: 50%;
+}
+
+.uploadBtn{
+  width: 8rem;
+  height: 8rem;
+}
+
+.toolbarBtn{
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.2rem;
+}
+
+.toolbarBtnDisabled {
+  pointer-events: none;
+  opacity: 30%;
+}
+
+#allCheckbox {
+  accent-color: white;
 }
 
 #innerToolbar {
@@ -98,9 +170,7 @@ input[type="number"] {
 
 #pixelSizeSlider {
   width: 70vw;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 1rem 0.4rem;
   background: repeating-linear-gradient(
     to right,
     #ccc,
@@ -124,80 +194,38 @@ input[type="number"] {
   flex-direction: column;
 }
 
-#mainToolbar {
-  display: flex;
-  flex-direction: row;
-}
-
-#methodContainer {
-  width: 20vw;
-  height: 10vh;
-  display: flex;
-  align-items: center;
-  margin: auto 1rem auto auto;
-}
-
-#radioGroup {
-  display: flex;
-  width: 20vw;
-  font-size: 90%;
-  flex-direction: column;
-  align-items: flex-start;
-  /*margin: auto auto auto 2rem;*/
-}
-
 #btnContainer {
   display: flex;
   width: 70vw;
-  height: 10vh;
-  flex-direction: row;
-  align-items: center;
-}
-
-.radioOption {
-  display: block;
-}
-
-#toolbar button {
-  border: none;
-  font-size: 100%;
-  border-radius: 15px;
-  width: 20vw;
-  height: 80%;
-  transition: all 0.3s;
-  margin: auto;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  button:hover:enabled {
-    color: #ffffffff;
-    border: none;
-    background-color: #ffffffb3;
-    border-radius: 15px;
-  }
-}
-
-#imageUploadContainer {
-  display: block;
-  width: 25%;
-  height: 25%;
-}
-
-#imageUpload {
-  width: 100%;
   height: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: auto;
+  margin-right: auto;
   object-fit: contain;
 }
 
 #imageContainer {
   width: 100%;
   height: 55vh; /* Adjust this value as needed */
-  border: 3px dashed white;
   display: none;
   justify-content: center;
   align-items: center;
   border-radius: 20px;
+  margin-bottom: 1rem;
 }
+
+#imageUploadContainer {
+  display: flex;
+  flex-direction: column;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+}
+
 
 #hiddenFileInput {
   display: none;
@@ -262,4 +290,42 @@ input[type="number"] {
   font-size: 1rem;
   border-radius: 15px;
   border: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #2D2D2D;
+    color: #D9D9D9;
+  }
+
+  #imageContainer {
+    border: 3px dashed #D9D9D9;
+  }
+
+  .svgBtn {
+    fill: #D9D9D9;
+  }
+
+  input[type=range] {
+    accent-color: #D9D9D9;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background: #D9D9D9;
+    color: #2D2D2D;
+  }
+
+  #imageContainer {
+    border: 3px dashed #2D2D2D;
+  }
+
+  .svgBtn {
+    fill: #2D2D2D;
+  }
+
+  input[type=range] {
+    accent-color: #2D2D2D;
+  }
 }
