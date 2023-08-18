@@ -85,8 +85,12 @@ async function perf() {
   App.versionCheckBtnElement.addEventListener("click", appVersionCheck);
   App.updateBtn.addEventListener("click", updateBtnEventHandler);
   App.exitBtn.addEventListener("click", hideModal);
-  App.mosaicBtnElement.addEventListener("click", () => handleFilterChange("mosaic"));
-  App.blurBtnElement.addEventListener("click", () => handleFilterChange("blur"));
+  App.mosaicBtnElement.addEventListener("click", () =>
+    handleFilterChange("mosaic"),
+  );
+  App.blurBtnElement.addEventListener("click", () =>
+    handleFilterChange("blur"),
+  );
 
   App.sliderElement.addEventListener("input", handleSliderInput);
   App.imageUploadElement.addEventListener("click", handleImageUpload);
@@ -352,8 +356,8 @@ async function processImage() {
       Math.max(0, box[3] * yRatio), // upscale height
     ]; // keep boxes in maxSize range
 
-    w -= Math.max(0, x+w - App.uploadedImageElement.naturalWidth);
-    h -= Math.max(0, y+h - App.uploadedImageElement.naturalHeight);
+    w -= Math.max(0, x + w - App.uploadedImageElement.naturalWidth);
+    h -= Math.max(0, y + h - App.uploadedImageElement.naturalHeight);
 
     App.boxes.push({
       label: label,
@@ -586,10 +590,10 @@ function applyFilterToOriginalImage() {
 }
 
 function handleFilterChange(filterType) {
-  if (filterType==="blur"){
+  if (filterType === "blur") {
     App.blurBtnElement.disabled = true;
     App.mosaicBtnElement.disabled = false;
-  } else{
+  } else {
     App.blurBtnElement.disabled = false;
     App.mosaicBtnElement.disabled = true;
   }
