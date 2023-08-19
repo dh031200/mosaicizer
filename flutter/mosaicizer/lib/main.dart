@@ -69,12 +69,14 @@ class MyHomePage extends StatelessWidget {
     )..load();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:
+          MediaQuery.of(context).platformBrightness == Brightness.dark
+              ? const Color(0xff2d2d2d)
+              : const Color(0xffd9d9d9),
       body: SafeArea(
           child: Column(
         children: [
           SizedBox(
-            // color: Colors.black,
             height: 60,
             child: AdWidget(
               ad: banner,
@@ -177,7 +179,7 @@ class MyHomePage extends StatelessWidget {
           final String base64 = match.group(1)!;
           final Uint8List bytes = base64Decode(base64);
           final result = await ImageGallerySaver.saveImage(bytes,
-              name: 'result.png', quality: 100);
+              name: 'mosaicizer_result', quality: 100);
           if (result['isSuccess']) {
             Fluttertoast.showToast(msg: "Image saved successfully!");
           } else {
