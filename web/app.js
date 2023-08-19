@@ -527,7 +527,7 @@ function applyFilterWithPixelSizeAndFilterType(
     let blurred = new cv.Mat();
 
     pixelSize = pixelSize * 3;
-    pixelSize = Math.min(pixelSize, Math.min(w, h));
+    pixelSize = parseInt(Math.min(pixelSize, Math.min(w, h)));
     pixelSize = pixelSize % 2 === 0 ? pixelSize - 1 : pixelSize;
 
     let ksize = new cv.Size(pixelSize, pixelSize);
