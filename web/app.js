@@ -525,8 +525,11 @@ function applyFilterWithPixelSizeAndFilterType(
     pixelated.delete();
   } else if (filterType === "blur") {
     let blurred = new cv.Mat();
+
     pixelSize = pixelSize * 3;
-    pixelSize = pixelSize % 2 === 0 ? pixelSize + 1 : pixelSize;
+    pixelSize = Math.min(pixelSize, Math.min(w, h));
+    pixelSize = pixelSize % 2 === 0 ? pixelSize - 1 : pixelSize;
+
     let ksize = new cv.Size(pixelSize, pixelSize);
     cv.GaussianBlur(roiClone, blurred, ksize, 0, 0, cv.BORDER_DEFAULT);
     blurred.copyTo(roiClone, mask);
