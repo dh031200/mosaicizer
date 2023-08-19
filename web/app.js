@@ -494,6 +494,9 @@ function applyFilterWithPixelSizeAndFilterType(
     h = h * App.scale;
     pixelSize = parseInt(Math.max(pixelSize * App.scale, 1));
   }
+
+  pixelSize = Math.min(pixelSize, Math.min(w,h))
+
   let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
   cv.ellipse(
     mask,
