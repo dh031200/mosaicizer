@@ -51,9 +51,8 @@ const App = {
 
 async function onOpenCvReady() {
   try {
-    App.inference_session = await ort.InferenceSession.create(
-      "yolov8-face.onnx",
-    );
+    App.inference_session =
+      await ort.InferenceSession.create("yolov8-face.onnx");
   } catch (error) {
     console.error("Failed to load the model:", error);
   }
