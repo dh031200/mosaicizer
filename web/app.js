@@ -405,7 +405,7 @@ async function processImage() {
     // Store the original and filtered regions
     // Create an area element for the face
     let faceArea = document.createElement("area");
-    faceArea.setAttribute('clicked','false');
+    faceArea.setAttribute("clicked", "false");
     faceArea.shape = "rect";
     faceArea.coords = `${x},${y},${x + w},${y + h}`;
 
@@ -422,7 +422,7 @@ async function processImage() {
       App.isApplied[i] = !App.isApplied[i];
 
       // Check if the current region is the original or the filtered region
-      if (this.getAttribute('clicked') === 'false') {
+      if (this.getAttribute("clicked") === "false") {
         // If it's the original region, get the preprocessed image from preprocessedFaces
         let preprocessedRoi =
           App.preprocessedFaces[App.currentFilterType][App.currentSliderValue][
@@ -431,9 +431,9 @@ async function processImage() {
         App.appliedMethod[i].method = App.currentFilterType;
         App.appliedMethod[i].pixelIdx = App.currentSliderValue;
         preprocessedRoi.copyTo(roi);
-        this.setAttribute('clicked','true');
+        this.setAttribute("clicked", "true");
       } else {
-        this.setAttribute('clicked','false');
+        this.setAttribute("clicked", "false");
         // If it's the filtered region, replace it with the original region
         originalRegion.copyTo(roi);
       }
