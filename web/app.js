@@ -404,6 +404,7 @@ async function processImage() {
     // Store the original and filtered regions
     // Create an area element for the face
     let faceArea = document.createElement("area");
+    faceArea.setAttribute("clicked", "false");
     faceArea.shape = "rect";
     faceArea.coords = `${x},${y},${x + w},${y + h}`;
 
@@ -418,14 +419,9 @@ async function processImage() {
         App.currentFace = this;
       }
       App.isApplied[i] = !App.isApplied[i];
-      // Subtract the original region from the current region
-      let difference = new cv.Mat();
-      cv.subtract(roi, originalRegion, difference);
-      // Calculate the norm of the difference
-      let norm = cv.norm(difference, cv.NORM_L1);
 
       // Check if the current region is the original or the filtered region
-      if (norm === 0) {
+      if (this.getAttribute("clicked") === "false") {
         // If it's the original region, get the preprocessed image from preprocessedFaces
         let preprocessedRoi =
           App.preprocessedFaces[App.currentFilterType][App.currentSliderValue][
@@ -434,7 +430,9 @@ async function processImage() {
         App.appliedMethod[i].method = App.currentFilterType;
         App.appliedMethod[i].pixelIdx = App.currentSliderValue;
         preprocessedRoi.copyTo(roi);
+        this.setAttribute("clicked", "true");
       } else {
+        this.setAttribute("clicked", "false");
         // If it's the filtered region, replace it with the original region
         originalRegion.copyTo(roi);
       }
@@ -444,9 +442,6 @@ async function processImage() {
       cv.imshow("preview", rgbMat);
 
       App.resultElement.src = App.previewCanvasElement.toDataURL();
-
-      // Clean up
-      difference.delete();
     });
     document.getElementById("clickMap").appendChild(faceArea);
     App.isApplied.push(false);
@@ -469,7 +464,6 @@ async function processImage() {
 
   // Hide the uploaded image
   App.previewCanvasElement.style.display = "none";
-
   App.sliderElement.disabled = false;
 
   // Enable the save button when the inference is done
@@ -491,10 +485,9 @@ function applyFilterWithPixelSizeAndFilterType(
     y = y * App.scale;
     w = w * App.scale;
     h = h * App.scale;
-    pixelSize = parseInt(Math.max(pixelSize * App.scale, 1));
+    pixelSize = Math.max(parseInt(pixelSize * App.scale), 2);
   }
-
-  pixelSize = Math.min(pixelSize, Math.min(w, h));
+  pixelSize = Math.min(pixelSize, parseInt(Math.min(w, h)));
 
   let mask = new cv.Mat.zeros(h, w, cv.CV_8UC1);
   cv.ellipse(
@@ -526,7 +519,7 @@ function applyFilterWithPixelSizeAndFilterType(
     let blurred = new cv.Mat();
 
     pixelSize = pixelSize * 3;
-    pixelSize = parseInt(Math.min(pixelSize, Math.min(w, h)));
+    pixelSize = Math.min(pixelSize, parseInt(Math.min(w, h)));
     pixelSize = pixelSize % 2 === 0 ? pixelSize - 1 : pixelSize;
 
     let ksize = new cv.Size(pixelSize, pixelSize);
@@ -534,7 +527,6 @@ function applyFilterWithPixelSizeAndFilterType(
     blurred.copyTo(roiClone, mask);
     blurred.delete();
   }
-
   roiClone.copyTo(roi);
   roi.delete();
   mask.delete();

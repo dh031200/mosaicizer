@@ -100,6 +100,7 @@ input[type="number"] {
 }
 
 .methodBtn {
+  color: #1e1e1e;
   font-weight: bold;
   font-family: "Pretendard-Medium", serif;
   border: none;
@@ -154,7 +155,7 @@ input[type="number"] {
 }
 
 #allCheckbox {
-  accent-color: white;
+  accent-color: gray;
 }
 
 #innerToolbar {
