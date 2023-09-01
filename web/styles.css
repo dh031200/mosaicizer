@@ -83,7 +83,7 @@ input[type="number"] {
   left: 0;
   right: 0;
   width: 100%;
-  height: 25vh;
+  height: 30vh;
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
@@ -92,11 +92,11 @@ input[type="number"] {
 
 #methodContainer {
   display: flex;
-  height: 5vh;
+  /*height: 10vh;*/
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-top: 1rem;
+  /*margin-top: 1rem;*/
 }
 
 .methodBtn {
@@ -155,7 +155,7 @@ input[type="number"] {
 }
 
 #allCheckbox {
-  accent-color: gray;
+  accent-color: rgb(128, 128, 128);
 }
 
 #innerToolbar {
@@ -171,7 +171,7 @@ input[type="number"] {
 }
 
 #pixelSizeSlider {
-  width: 70vw;
+  width: 60vw;
   margin: 1rem 1rem 0.4rem;
   background: repeating-linear-gradient(
     to right,
@@ -192,18 +192,18 @@ input[type="number"] {
 #checkboxContainer {
   margin-left: 1rem;
   display: flex;
-  width: 10vw;
+  width: 20vw;
   flex-direction: column;
 }
 
 #btnContainer {
   display: flex;
-  width: 70vw;
+  /*width: 100vw;*/
   height: 100%;
   flex-direction: row;
   justify-content: space-between;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 10vw;
+  margin-right: 10vw;
   object-fit: contain;
 }
 
