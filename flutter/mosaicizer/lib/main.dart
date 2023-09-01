@@ -12,10 +12,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:store_redirect/store_redirect.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+
 
 const Map<String, String> unitID = kReleaseMode
     ? {
-        'ios': 'ca-app-pub-1117721907680627/1986116731',
+        'ios': 'ca-app-pub-1117721907680627/7461167636',
         'android': 'ca-app-pub-1117721907680627/1986116731',
       }
     : {
@@ -25,8 +29,14 @@ const Map<String, String> unitID = kReleaseMode
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   MobileAds.instance.initialize();
-
   runApp(const MyApp());
 }
 
