@@ -1,7 +1,7 @@
 const App = {
   isMobile: false,
   downloadLink: null,
-  latestVersion: 8,
+  latestVersion: 9,
   inference_session: null,
   nms_session: null,
   config: null,
@@ -238,6 +238,10 @@ function handleResetBtnClick() {
   App.sliderElement.value = 3;
   document.getElementById("pixelSizeValue").textContent = "3";
   App.boxes = [];
+  App.isApplied = [];
+  App.appliedMethod = [];
+  App.downloadLink = null;
+  App.scale = null;
 
   App.imageUploadContainerElement.style.display = "flex";
   App.imageContainerElement.style.border = App.borderStyle;
