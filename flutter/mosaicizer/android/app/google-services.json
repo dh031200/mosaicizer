@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "967852562289",
+    "project_id": "mosaicizer-fee7d",
+    "storage_bucket": "mosaicizer-fee7d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967852562289:android:f2cd9d6c539a8db3c288d0",
+        "android_client_info": {
+          "package_name": "com.twodevteam.mosaicizer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967852562289-h7ivpiotv3cl8jktpuh8qi894bjapbe0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMWTScdrABXErLeGOv6lit_vXRcvfgvi4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967852562289-h7ivpiotv3cl8jktpuh8qi894bjapbe0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "967852562289-7sujar3v3nrue0vq5nqde5au78bsmb0k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.twodev.mosaicizer"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
