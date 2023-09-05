@@ -12,9 +12,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:store_redirect/store_redirect.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'firebase_options.dart';
-
 
 
 const Map<String, String> unitID = kReleaseMode
@@ -42,18 +43,26 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: MyHomePage(),
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+  final ValueNotifier<String> authStatus = ValueNotifier<String>('Unknown');
+
+  MyHomePage({super.key}){
+    initPlugin();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,23 +191,31 @@ class MyHomePage extends StatelessWidget {
       } else {
         result = await Permission.storage.request();
       }
-      if (result.isGranted) {
-        final RegExp regex = RegExp(r'data:image/png;base64,(.+)');
-        final Match? match = regex.firstMatch(dataUrl);
-        if (match != null && match.groupCount == 1) {
-          final String base64 = match.group(1)!;
-          final Uint8List bytes = base64Decode(base64);
-          final result = await ImageGallerySaver.saveImage(bytes,
-              name: 'mosaicizer_result', quality: 100);
-          if (result['isSuccess']) {
-            Fluttertoast.showToast(msg: "Image saved successfully!");
-          } else {
-            Fluttertoast.showToast(msg: "Failed to save image!");
-          }
-        }
-      } else {
+      if (!result.isGranted) {
         await openAppSettings();
       }
+    }
+    final RegExp regex = RegExp(r'data:image/png;base64,(.+)');
+    final Match? match = regex.firstMatch(dataUrl);
+    if (match != null && match.groupCount == 1) {
+      final String base64 = match.group(1)!;
+      final Uint8List bytes = base64Decode(base64);
+      final result = await ImageGallerySaver.saveImage(bytes,
+          name: 'mosaicizer_result', quality: 100);
+      if (result['isSuccess']) {
+        Fluttertoast.showToast(msg: "Image saved successfully!");
+      } else {
+        Fluttertoast.showToast(msg: "Failed to save image!");
+      }
+    }
+  }
+
+  Future<void> initPlugin() async {
+    final TrackingStatus status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    authStatus.value = '$status';
+    if (status == TrackingStatus.notDetermined){
+      final TrackingStatus status = await AppTrackingTransparency.requestTrackingAuthorization();
+      authStatus.value = '$status';
     }
   }
 }

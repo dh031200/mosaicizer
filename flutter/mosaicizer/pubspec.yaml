@@ -41,6 +41,8 @@ dependencies:
   device_info_plus: ^9.0.2
   image_gallery_saver: ^2.0.3
   firebase_core: ^2.15.1
+  firebase_analytics: ^10.4.5
+  app_tracking_transparency: ^2.0.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
