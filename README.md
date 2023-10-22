@@ -1,6 +1,6 @@
 # Mosaicizer
 
-Landing Page: https://www.2devteam.com/en/mosaicizer  
+Landing Page: https://www.2devteam.com/en/mosaicizer
 
 Mosaicizer is an open-source project designed to automatically pixelate and blur faces in images, adding a touch of privacy and anonymity. By leveraging the power of YOLOv8, WebAssembly, and OpenCV.js, it provides a seamless face recognition and automation experience. Developed initially as a web app, it has been distributed for iOS and Android platforms using Flutter.
 
