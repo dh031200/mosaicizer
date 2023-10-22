@@ -50,20 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCMWTScdrABXErLeGOv6lit_vXRcvfgvi4',
-    appId: '1:967852562289:android:f2cd9d6c539a8db3c288d0',
-    messagingSenderId: '967852562289',
-    projectId: 'mosaicizer-fee7d',
-    storageBucket: 'mosaicizer-fee7d.appspot.com',
+    apiKey: 'AIzaSyBXJYsHEjy7pl-TGFDuhDgSbFNF3O6_X7g',
+    appId: '1:627016818788:android:a4ab15c14f9ad61e8dbf71',
+    messagingSenderId: '627016818788',
+    projectId: 'mosaicizer-af4aa',
+    storageBucket: 'mosaicizer-af4aa.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC_cu2bztBAhyQ4eZlahhMw2XnaVsMM01k',
-    appId: '1:967852562289:ios:2850038dc38b9236c288d0',
-    messagingSenderId: '967852562289',
-    projectId: 'mosaicizer-fee7d',
-    storageBucket: 'mosaicizer-fee7d.appspot.com',
-    iosClientId: '967852562289-9nds5pvm84bshd9mtr7ubuggd8n2lahm.apps.googleusercontent.com',
-    iosBundleId: 'com.twodev.mosaicizer',
+    apiKey: 'AIzaSyAmlea-ZsOyQnWNpjlYwRE6tMS8SfG3uws',
+    appId: '1:627016818788:ios:000631c6ca7365938dbf71',
+    messagingSenderId: '627016818788',
+    projectId: 'mosaicizer-af4aa',
+    storageBucket: 'mosaicizer-af4aa.appspot.com',
+    iosBundleId: 'com.twodevteam.mosaicizer',
   );
 }
