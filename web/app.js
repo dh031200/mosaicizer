@@ -121,9 +121,8 @@ function updateBtnEventHandler() {
 }
 
 function showModal() {
-  document.getElementById(
-    "appVersionLabel",
-  ).textContent = `App version : ${App.appVersion.value}`;
+  document.getElementById("appVersionLabel").textContent =
+    `App version : ${App.appVersion.value}`;
   App.modal.style.display = "block";
   App.adContainerElement.style.display = "block";
   App.toolbarElement.style.display = "none";
