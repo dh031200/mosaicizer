@@ -1,6 +1,6 @@
 # Mosaicizer
 
-Landing Page: https://www.2devteam.com/en/mosaicizer  
+Landing Page: https://www.2devteam.com/en/mosaicizer
 
 [[한국어]](README-kor.md)
 
