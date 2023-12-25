@@ -1,6 +1,8 @@
+"use strict";
 const App = {
   isMobile: false,
   downloadLink: null,
+  jsVersion: 23,
   latestVersion: 11,
   inference_session: null,
   nms_session: null,
@@ -51,10 +53,12 @@ const App = {
 
 async function onOpenCvReady() {
   try {
-    App.inference_session =
-      await ort.InferenceSession.create("yolov8-face.onnx");
+    App.inference_session = await ort.InferenceSession.create("yolov8-face.onnx");
   } catch (error) {
     console.error("Failed to load the model:", error);
+    // 에러 시 사용자에게 알려줄 수 있고, 다른 동작을 취할 수 있다.
+    alert('Failed to load model');
+    return;
   }
 
   App.config = new ort.Tensor(
@@ -91,7 +95,7 @@ async function perf() {
     handleFilterChange("blur"),
   );
 
-  App.sliderElement.addEventListener("input", handleSliderInput);
+  App.sliderElement.addEventListener('input', debounce(handleSliderInput, 500));
   App.imageUploadElement.addEventListener("click", handleImageUpload);
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
   App.applyBtnElement.addEventListener("click", handleApplyBtnClick);
@@ -196,10 +200,28 @@ function handleFileInputChange(e) {
   reader.readAsDataURL(e.target.files[0]);
 }
 
+function debounce(func, delay) {
+  let debounceTimer;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(debounceTimer);
+    debounceTimer
+        = setTimeout(() => func.apply(context, args), delay);
+  }
+}
+
 function handleSliderInput() {
   document.getElementById("pixelSizeValue").textContent = this.value;
   App.currentSliderValue = parseInt(App.sliderElement.value, 10) - 1;
   redrawFace();
+  hideLoadingOverlay();
+  App.sliderElement.disabled = true;
+  console.log(App.preprocessedFaces)
+  setTimeout(() => {
+    // 0.5초 (500ms)후에 슬라이더를 다시 활성화
+    App.sliderElement.disabled = false;
+  }, 500);
 }
 
 async function handleApplyBtnClick() {
@@ -211,6 +233,7 @@ async function handleApplyBtnClick() {
         await processImage();
       } catch (error) {
         console.error("Failed to run the model:", error);
+        location.reload();
       }
     } else {
       console.error("The model is not loaded yet.");
@@ -444,8 +467,8 @@ async function processImage() {
       const rgbMat = new cv.Mat();
       cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
       cv.imshow("preview", rgbMat);
-
       App.resultElement.src = App.previewCanvasElement.toDataURL();
+      rgbMat.delete()
     });
     document.getElementById("clickMap").appendChild(faceArea);
     App.isApplied.push(false);
@@ -551,8 +574,6 @@ function redrawFace() {
         App.currentFace.click();
       }
     }
-    // Hide the loading overlay and unblock clicks
-    hideLoadingOverlay();
   }, 50);
 }
 
@@ -628,7 +649,9 @@ async function main() {
   } else {
     cv.onRuntimeInitialized = perf;
   }
-  await onOpenCvReady();
+  await onOpenCvReady().catch(error => {
+    console.error("An error occurred:", error);
+  });
 }
 
 let pathsConfig = {
