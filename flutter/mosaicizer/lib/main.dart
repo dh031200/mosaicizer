@@ -16,13 +16,10 @@ import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'firebase_options.dart';
+import 'ads.dart';
 
-
-const Map<String, String> unitID = kReleaseMode
-    ? {
-        'ios': 'ca-app-pub-3940256099942544/2934735716',
-        'android': 'ca-app-pub-4580448931745963/3325264851',
-      }
+Map<String, String> unitID = kReleaseMode
+    ? getUnitID()
     : {
         'ios': 'ca-app-pub-3940256099942544/2934735716',
         'android': 'ca-app-pub-3940256099942544/6300978111',
@@ -43,6 +40,7 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
@@ -60,7 +58,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   final ValueNotifier<String> authStatus = ValueNotifier<String>('Unknown');
 
-  MyHomePage({super.key}){
+  MyHomePage({super.key}) {
     initPlugin();
   }
 
@@ -211,10 +209,12 @@ class MyHomePage extends StatelessWidget {
   }
 
   Future<void> initPlugin() async {
-    final TrackingStatus status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    final TrackingStatus status =
+        await AppTrackingTransparency.trackingAuthorizationStatus;
     authStatus.value = '$status';
-    if (status == TrackingStatus.notDetermined){
-      final TrackingStatus status = await AppTrackingTransparency.requestTrackingAuthorization();
+    if (status == TrackingStatus.notDetermined) {
+      final TrackingStatus status =
+          await AppTrackingTransparency.requestTrackingAuthorization();
       authStatus.value = '$status';
     }
   }

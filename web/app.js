@@ -3,7 +3,7 @@ const App = {
   isMobile: false,
   downloadLink: null,
   jsVersion: 23,
-  latestVersion: 11,
+  latestVersion: 12,
   inference_session: null,
   nms_session: null,
   config: null,
