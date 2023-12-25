@@ -53,11 +53,12 @@ const App = {
 
 async function onOpenCvReady() {
   try {
-    App.inference_session = await ort.InferenceSession.create("yolov8-face.onnx");
+    App.inference_session =
+      await ort.InferenceSession.create("yolov8-face.onnx");
   } catch (error) {
     console.error("Failed to load the model:", error);
     // 에러 시 사용자에게 알려줄 수 있고, 다른 동작을 취할 수 있다.
-    alert('Failed to load model');
+    alert("Failed to load model");
     return;
   }
 
@@ -95,7 +96,7 @@ async function perf() {
     handleFilterChange("blur"),
   );
 
-  App.sliderElement.addEventListener('input', debounce(handleSliderInput, 500));
+  App.sliderElement.addEventListener("input", debounce(handleSliderInput, 500));
   App.imageUploadElement.addEventListener("click", handleImageUpload);
   App.hiddenFileInputElement.addEventListener("change", handleFileInputChange);
   App.applyBtnElement.addEventListener("click", handleApplyBtnClick);
@@ -202,13 +203,12 @@ function handleFileInputChange(e) {
 
 function debounce(func, delay) {
   let debounceTimer;
-  return function() {
+  return function () {
     const context = this;
     const args = arguments;
     clearTimeout(debounceTimer);
-    debounceTimer
-        = setTimeout(() => func.apply(context, args), delay);
-  }
+    debounceTimer = setTimeout(() => func.apply(context, args), delay);
+  };
 }
 
 function handleSliderInput() {
@@ -217,7 +217,7 @@ function handleSliderInput() {
   redrawFace();
   hideLoadingOverlay();
   App.sliderElement.disabled = true;
-  console.log(App.preprocessedFaces)
+  console.log(App.preprocessedFaces);
   setTimeout(() => {
     // 0.5초 (500ms)후에 슬라이더를 다시 활성화
     App.sliderElement.disabled = false;
@@ -468,7 +468,7 @@ async function processImage() {
       cv.cvtColor(image, rgbMat, cv.COLOR_BGR2RGBA);
       cv.imshow("preview", rgbMat);
       App.resultElement.src = App.previewCanvasElement.toDataURL();
-      rgbMat.delete()
+      rgbMat.delete();
     });
     document.getElementById("clickMap").appendChild(faceArea);
     App.isApplied.push(false);
@@ -649,7 +649,7 @@ async function main() {
   } else {
     cv.onRuntimeInitialized = perf;
   }
-  await onOpenCvReady().catch(error => {
+  await onOpenCvReady().catch((error) => {
     console.error("An error occurred:", error);
   });
 }
