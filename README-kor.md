@@ -1,5 +1,5 @@
 # Mosaicizer
-
+Landing Page: https://techniflows.com/mosaicizer
 ## Introduction
 
 Mosaicizer는 이미지 내의 얼굴을 자동으로 픽셀화하고 흐리게 처리하여 개인 정보 보호와 익명을 제공하는 오픈 소스 프로젝트입니다. YOLOv8, WebAssembly, OpenCV.js의 강력한 기능을 활용하여 빠르고 정확한 얼굴 인식과 자동화 경험을 제공합니다.
