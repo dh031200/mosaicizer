@@ -25,17 +25,17 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-4580448931745963~1771675886</string>
+	<string>ca-app-pub-4580448931745963~4181977494</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
+	<string>This app requires 'Camera Usage' access to take photos and pass them to the mosaicizer for mosaic and blur operations. This is done in your local environment.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string></string>
+	<string>This app requires 'Photo Library Additions Usage' access to store photos that you have completed mosaic and blur operations in Mosaicizer. This will be done in your local environment.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires 'Photo Library Usage' access to pass photos to Mosaicizer for mosaic and blur operations. This will be done in your local environment.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>SKAdNetworkItems</key>

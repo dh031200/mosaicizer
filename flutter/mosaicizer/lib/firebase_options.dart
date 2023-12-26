@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '627016818788',
     projectId: 'mosaicizer-af4aa',
     storageBucket: 'mosaicizer-af4aa.appspot.com',
-    iosBundleId: 'com.twodevteam.mosaicizer',
+    iosBundleId: 'com.techniflows.mosaicizer',
   );
 }
