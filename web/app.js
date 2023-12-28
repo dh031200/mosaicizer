@@ -120,7 +120,7 @@ function removeEventListeners() {
 
 function updateBtnEventHandler() {
   window.open(
-    "https://play.google.com/store/apps/details?id=com.techniflows.mosaicizer",
+    "https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer",
     "_blank",
   );
 }
@@ -214,6 +214,7 @@ function handleSliderInput() {
   document.getElementById("pixelSizeValue").textContent = this.value;
   App.currentSliderValue = parseInt(App.sliderElement.value, 10) - 1;
   redrawFace();
+  hideLoadingOverlay();
   App.sliderElement.disabled = true;
   console.log(App.preprocessedFaces);
   setTimeout(() => {
@@ -573,7 +574,6 @@ function redrawFace() {
       }
     }
   }, 50);
-  hideLoadingOverlay();
 }
 
 function applyFilterToOriginalImage() {

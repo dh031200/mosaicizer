@@ -1,4 +1,4 @@
-package com.techniflows.mosaicizer
+package com.twodevteam.mosaicizer
 
 import io.flutter.embedding.android.FlutterActivity
 

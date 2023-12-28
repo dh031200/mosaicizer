@@ -122,7 +122,7 @@ class MyHomePage extends StatelessWidget {
                       handlerName: 'updateApp',
                       callback: (args) {
                         StoreRedirect.redirect(
-                            androidAppId: 'com.techniflows.mosaicizer',
+                            androidAppId: 'com.twodevteam.mosaicizer',
                             iOSAppId: 'idxxx');
                       });
                   controller.addJavaScriptHandler(
