@@ -15,6 +15,7 @@ import 'package:store_redirect/store_redirect.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'firebase_options.dart';
 import 'ads.dart';
 
@@ -35,22 +36,105 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   MobileAds.instance.initialize();
-  runApp(const MyApp());
+  final List<ConnectivityResult> connectivityResult =
+      await (Connectivity().checkConnectivity());
+  runApp(MyApp(connectivityResult));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final List<ConnectivityResult> connectivityResult;
+
+  const MyApp(this.connectivityResult, {super.key});
 
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: analytics),
-      ],
+    if (connectivityResult.contains(ConnectivityResult.mobile) || connectivityResult.contains(ConnectivityResult.wifi)) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: MyHomePage(),
+        navigatorObservers: [
+          FirebaseAnalyticsObserver(analytics: analytics),
+        ],
+      );
+    } else {
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: NeedNetworkPage(),
+      );
+    }
+  }
+}
+
+class NeedNetworkPage extends StatelessWidget {
+  const NeedNetworkPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor:
+          MediaQuery.of(context).platformBrightness == Brightness.dark
+              ? const Color(0xff2d2d2d)
+              : const Color(0xffd9d9d9),
+      body: SafeArea(
+        child: Column(children: [
+          const SizedBox(
+            height: 60,
+          ),
+          Image.asset(
+            MediaQuery.of(context).platformBrightness == Brightness.dark
+                ? 'assets/404-white.png'
+                : 'assets/404-black.png',
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          Text(
+            "Mosaicizer need internet",
+            style: TextStyle(
+                fontSize:22,
+                fontWeight:FontWeight.bold,
+                color:
+                    MediaQuery.of(context).platformBrightness == Brightness.dark
+                        ? const Color(0xffd9d9d9)
+                        : const Color(0xff2d2d2d)),
+          ),
+          Text(
+            "to download the face detection AI model.",
+            style: TextStyle(
+                fontSize:12,
+                fontWeight:FontWeight.bold,
+                color:
+                MediaQuery.of(context).platformBrightness == Brightness.dark
+                    ? const Color(0xffd9d9d9)
+                    : const Color(0xff2d2d2d)),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Text(
+            "Don't worry!",
+            style: TextStyle(
+                fontSize:30,
+                fontWeight:FontWeight.bold,
+                color:
+                MediaQuery.of(context).platformBrightness == Brightness.dark
+                    ? const Color(0xffd9d9d9)
+                    : const Color(0xff2d2d2d)),
+          ),
+          Text(
+            "Your image will only be processed inside your device.",
+            style: TextStyle(
+                fontSize:12,
+                fontWeight:FontWeight.bold,
+                color:
+                MediaQuery.of(context).platformBrightness == Brightness.dark
+                    ? const Color(0xffd9d9d9)
+                    : const Color(0xff2d2d2d)),
+          ),
+        ]),
+      ),
     );
   }
 }
@@ -102,7 +186,7 @@ class MyHomePage extends StatelessWidget {
           Expanded(
             child: InAppWebView(
               initialUrlRequest:
-                  URLRequest(url: Uri.parse('https://mosaicizer.com/')),
+                  URLRequest(url: WebUri('https://mosaicizer.com/')),
               onProgressChanged:
                   (InAppWebViewController controller, int progress) async {
                 if (progress == 100 && !isEventListenersRemoved) {
@@ -123,7 +207,7 @@ class MyHomePage extends StatelessWidget {
                       callback: (args) {
                         StoreRedirect.redirect(
                             androidAppId: 'com.twodevteam.mosaicizer',
-                            iOSAppId: 'idxxx');
+                            iOSAppId: '6474996714');
                       });
                   controller.addJavaScriptHandler(
                       handlerName: 'fileChooser',

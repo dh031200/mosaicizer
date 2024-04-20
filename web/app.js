@@ -3,7 +3,7 @@ const App = {
   isMobile: false,
   downloadLink: null,
   jsVersion: 23,
-  latestVersion: 11,
+  latestVersion: 15,
   inference_session: null,
   nms_session: null,
   config: null,
@@ -57,7 +57,6 @@ async function onOpenCvReady() {
       await ort.InferenceSession.create("yolov8-face.onnx");
   } catch (error) {
     console.error("Failed to load the model:", error);
-    // 에러 시 사용자에게 알려줄 수 있고, 다른 동작을 취할 수 있다.
     alert("Failed to load model");
     return;
   }
