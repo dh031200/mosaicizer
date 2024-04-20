@@ -252,6 +252,21 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
+  Future<void> _openStore() async {
+    Uri appStoreUrl = Uri.parse(
+        'https://apps.apple.com/app/6474996714');
+    Uri playStoreUrl = Uri.parse(
+        'https://play.google.com/store/apps/details?id=com.twodevteam.mosaicizer');
+
+    if (await canLaunchUrl(appStoreUrl) && !Platform.isAndroid) {
+      await launchUrl(appStoreUrl);
+    } else if (await canLaunchUrl(playStoreUrl) && Platform.isAndroid) {
+      await launchUrl(playStoreUrl);
+    } else {
+      throw 'Could not launch store';
+    }
+  }
+
   void _getImage(InAppWebViewController controller) async {
     final ImagePicker picker = ImagePicker();
     final XFile? imageFile =
