@@ -11,11 +11,11 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:store_redirect/store_redirect.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'firebase_options.dart';
 import 'ads.dart';
 
@@ -205,9 +205,7 @@ class MyHomePage extends StatelessWidget {
                   controller.addJavaScriptHandler(
                       handlerName: 'updateApp',
                       callback: (args) {
-                        StoreRedirect.redirect(
-                            androidAppId: 'com.twodevteam.mosaicizer',
-                            iOSAppId: '6474996714');
+                        _openStore();
                       });
                   controller.addJavaScriptHandler(
                       handlerName: 'fileChooser',
