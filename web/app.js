@@ -161,7 +161,7 @@ function handleFileInputChange(e) {
   }
 
   // 원본 파일명 저장 (확장자 제외)
-  App.originalFileName = file.name.substring(0, file.name.lastIndexOf('.'));
+  App.originalFileName = file.name.substring(0, file.name.lastIndexOf("."));
 
   const reader = new FileReader();
   reader.onload = function (event) {
@@ -204,13 +204,13 @@ function handleFileInputChange(e) {
 }
 
 // 플러터 앱에서 호출하는 함수 - base64 이미지를 받아서 처리
-window.uploadFile = function(base64Data) {
+window.uploadFile = function (base64Data) {
   // base64 데이터 URL 형식으로 변환
   const dataUrl = `data:image/jpeg;base64,${base64Data}`;
-  
+
   // 파일명 설정 (모바일 앱에서 선택한 이미지의 경우)
   App.originalFileName = "mobile_image";
-  
+
   const img = new Image();
   img.onload = function () {
     App.uploadedImageElement.src = dataUrl;
@@ -349,7 +349,9 @@ async function handleSaveBtnClick() {
     applyFilterToOriginalImage();
     const link = document.createElement("a");
     // 원본 파일명에 "_mz" 붙여서 다운로드
-    const downloadFileName = App.originalFileName ? `${App.originalFileName}_mz.png` : "result.png";
+    const downloadFileName = App.originalFileName
+      ? `${App.originalFileName}_mz.png`
+      : "result.png";
     link.download = downloadFileName;
     link.href = App.outputElement.toDataURL();
     App.downloadLink = link.href;
